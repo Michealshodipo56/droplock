@@ -11,6 +11,19 @@ themeToggle.addEventListener('click', () => {
 
 function getThemeColors() {
   const isLight = document.body.classList.contains('light-mode');
+  const isStealth = document.body.classList.contains('stealth-mode');
+
+  if (isStealth) {
+    return {
+      line: 'rgba(212, 0, 255, 0.3)',
+      dotBright: 'rgba(212, 0, 255, 0.95)',
+      dotDim: 'rgba(100, 0, 120, 0.5)',
+      bg: '#050505',
+      cyan: 'rgba(212, 0, 255, 0.4)',
+      cyanBright: 'rgba(212, 0, 255, 0.8)'
+    };
+  }
+  
   return {
     line: isLight ? '#333333' : '#c8c8c8',
     dotBright: isLight ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.95)',
@@ -209,3 +222,170 @@ function initRecoveryModal() {
 
 // Initialize on script load (now at end of body)
 initRecoveryModal();
+
+// --- Stealth Mode Toggle (Local-Only Vault) ---
+const stealthToggle = document.getElementById('stealth-toggle');
+const vaultTitle = document.getElementById('vault-main-title');
+const statusDisplay = document.getElementById('status-display');
+
+if (stealthToggle && vaultTitle) {
+  stealthToggle.addEventListener('click', () => {
+    // Remove light mode if entering stealth
+    document.body.classList.remove('light-mode');
+    const isStealth = document.body.classList.toggle('stealth-mode');
+    
+    if (isStealth) {
+      vaultTitle.innerText = 'LOCAL_VAULT';
+      statusDisplay.innerText = 'OFFLINE_SECURITY_READY';
+    } else {
+      vaultTitle.innerText = 'ACCESS_VAULT';
+      statusDisplay.innerText = 'AWAITING_INPUT';
+    }
+  });
+}
+
+// --- Intro Tour Logic ---
+const introBtn = document.getElementById('intro-btn');
+const tourOverlay = document.getElementById('tour-overlay');
+const tourTooltip = document.getElementById('tour-tooltip');
+const tourTitle = document.getElementById('tour-title');
+const tourText = document.getElementById('tour-text');
+const tourNextBtn = document.getElementById('tour-next');
+const tourSkipBtn = document.getElementById('tour-skip');
+
+const tourSteps = [
+  { 
+    selector: '.vault-card', 
+    title: 'ACCESS VAULT', 
+    text: 'This is the core functional unit. Enter your locker identifier here to establish an ephemeral, encrypted tunnel. Your data never persists between sessions.', 
+    position: 'right' 
+  },
+  { 
+    selector: '#stealth-toggle', 
+    title: 'STEALTH MODE', 
+    text: 'Engage stealth protocols to switch to a localized, offline vault environment for maximum privacy.', 
+    position: 'bottom' 
+  },
+  { 
+    selector: '#recovery-toggle', 
+    title: 'RECOVERY PROTOCOL', 
+    text: 'Lost access? Trigger the recovery sequence here to regain control of your vault using your security identifiers.', 
+    position: 'right' 
+  },
+  { 
+    selector: '#theme-toggle', 
+    title: 'THEME SHIFT', 
+    text: 'Toggle between various visual modes: Dark, Light, and Stealth themes tailored for your environment.', 
+    position: 'right' 
+  },
+  { 
+    selector: '.nav-links', 
+    title: 'SYSTEM NAVIGATION', 
+    text: 'Quickly jump between the Terminal, File Transfer protocols, and system documentation.', 
+    position: 'bottom' 
+  }
+];
+
+let currentTourStep = 0;
+
+function positionTooltip(targetEl, pos) {
+  const rect = targetEl.getBoundingClientRect();
+  const tooltipRect = tourTooltip.getBoundingClientRect();
+  
+  let top = 0;
+  let left = 0;
+  const padding = 20;
+
+  if (pos === 'right') {
+    left = rect.right + padding;
+    top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+    // Boundary check for right
+    if (left + tooltipRect.width > window.innerWidth) {
+      left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+      top = rect.bottom + padding;
+    }
+  } else if (pos === 'bottom') {
+    left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    top = rect.bottom + padding;
+  }
+  
+  // Outer screen boundaries fallback
+  if (left < 10) left = 10;
+  if (top < 10) top = 10;
+  if (left + tooltipRect.width > window.innerWidth - 10) {
+    left = window.innerWidth - tooltipRect.width - 10;
+  }
+  if (top + tooltipRect.height > window.innerHeight - 10) {
+    top = window.innerHeight - tooltipRect.height - 10;
+  }
+
+  tourTooltip.style.left = left + 'px';
+  tourTooltip.style.top = top + 'px';
+}
+
+function showTourStep(index) {
+  // Clear previous
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  
+  if (index >= tourSteps.length) {
+    endTour();
+    return;
+  }
+
+  const step = tourSteps[index];
+  const target = document.querySelector(step.selector);
+  
+  if (target) {
+    // Add highlight
+    target.classList.add('tour-highlight');
+    
+    // Update texts
+    tourTitle.innerText = step.title;
+    tourText.innerText = step.text;
+    tourNextBtn.innerText = index === tourSteps.length - 1 ? 'FINISH' : 'NEXT';
+    
+    // Show and position
+    tourTooltip.classList.add('active');
+    
+    // Small timeout to allow layout calc if needed
+    setTimeout(() => {
+      positionTooltip(target, step.position);
+    }, 10);
+    
+  } else {
+    // Element not found, skip
+    showTourStep(index + 1);
+  }
+}
+
+function startTour() {
+  currentTourStep = 0;
+  tourOverlay.classList.add('active');
+  showTourStep(currentTourStep);
+}
+
+function endTour() {
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  tourOverlay.classList.remove('active');
+  tourTooltip.classList.remove('active');
+}
+
+if (introBtn) {
+  introBtn.addEventListener('click', startTour);
+}
+if (tourNextBtn) {
+  tourNextBtn.addEventListener('click', () => {
+    currentTourStep++;
+    showTourStep(currentTourStep);
+  });
+}
+if (tourSkipBtn) {
+  tourSkipBtn.addEventListener('click', endTour);
+}
+
+// Disallow clicking overlay to pass through
+tourOverlay.addEventListener('click', (e) => {
+  // Optional: Click overlay to skip/close
+  // endTour();
+});
+
