@@ -51,8 +51,9 @@ body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   font-family: var(--font-mono);
-  overflow: hidden; /* Hide scrollbars normally, adjust if needed */
-  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto; /* Allow scrolling if content exceeds viewport */
+  min-height: 100vh;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -70,7 +71,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   padding: 24px;
 }
 
@@ -201,7 +202,7 @@ body {
   font-size: 0.7rem;
   letter-spacing: 2px;
   color: var(--cyan);
-  margin-bottom: 48px;
+  margin-bottom: 32px; /* Reduced from 48px */
 }
 
 .status-text {
@@ -210,7 +211,7 @@ body {
 
 .input-group {
   position: relative;
-  margin-bottom: 32px;
+  margin-bottom: 24px; /* Reduced from 32px */
 }
 
 .input-label {
@@ -249,7 +250,7 @@ body {
   display: flex;
   align-items: center;
   gap: 24px;
-  margin-bottom: 48px;
+  margin-bottom: 32px; /* Reduced from 48px */
 }
 
 .btn-access {
@@ -322,7 +323,7 @@ body {
 }
 
 .tags-container {
-  margin-top: 32px;
+  margin-top: 24px; /* Reduced from 32px */
   display: flex;
   gap: 16px;
 }
