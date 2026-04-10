@@ -25,11 +25,8 @@ This list tracks the remaining tasks for the DropLock privacy-first storage plat
 - [ ] **Responsive Audit**: Final check of mobile/tablet viewing experience.
 - [ ] **Security Audit**: Verify metadata stripping for uploaded files.
 
-- [x] **the tags-container footer** moving out of the page
-
 - [ ] **recovery modal** is not working, add it working features
 - [ ] **stealth mode** add the working features
 - [ ] **recent vaults** add the working features
 
 - [ ] **File Transfer** Create the file transfer page
-- [ ] 
