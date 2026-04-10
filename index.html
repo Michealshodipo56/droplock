@@ -52,40 +52,47 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <div class="vault-card">
-        <h1 id="vault-main-title" class="vault-title">ACCESS_VAULT</h1>
-        <div class="status-indicator">
-          STATUS: <span id="status-display" class="status-text">AWAITING_INPUT</span>
+      <div class="main-row">
+        <div class="vault-card">
+          <h1 id="vault-main-title" class="vault-title">ACCESS_VAULT</h1>
+          <div class="status-indicator">
+            STATUS: <span id="status-display" class="status-text">AWAITING_INPUT</span>
+          </div>
+
+          <form class="vault-form" onsubmit="event.preventDefault();">
+            <div class="input-group">
+              <label class="input-label">LOCKER NAME</label>
+              <input type="text" class="terminal-input" placeholder="ENTER_IDENTIFIER">
+            </div>
+
+            <div class="action-row">
+              <button type="button" class="btn-access">ACCESS LOCKER</button>
+              <a href="manifesto.html" class="security-protocol" style="text-decoration: none; color: inherit; display: block; cursor: pointer;">
+                <div class="sp-label">SECURITY PROTOCOL</div>
+                <div class="sp-value">AES-256 E2EE</div>
+              </a>
+            </div>
+          </form>
+
+          <div class="card-footer">
+            <p class="footer-desc">No accounts. Just privacy. Your<br>data exists only within the<br>temporary tunnel.</p>
+            <div class="architecture-info">
+              <div class="arch-label">ARCHITECTURE</div>
+              <div class="arch-value">V_04_S2</div>
+            </div>
+          </div>
         </div>
 
-        <form class="vault-form" onsubmit="event.preventDefault();">
-          <div class="input-group">
-            <label class="input-label">LOCKER NAME</label>
-            <input type="text" class="terminal-input" placeholder="ENTER_IDENTIFIER">
-          </div>
-
-          <div class="action-row">
-            <button type="button" class="btn-access">ACCESS LOCKER</button>
-            <a href="manifesto.html" class="security-protocol" style="text-decoration: none; color: inherit; display: block; cursor: pointer;">
-              <div class="sp-label">SECURITY PROTOCOL</div>
-              <div class="sp-value">AES-256 E2EE</div>
-            </a>
-          </div>
-        </form>
-
-        <div class="card-footer">
-          <p class="footer-desc">No accounts. Just privacy. Your<br>data exists only within the<br>temporary tunnel.</p>
-          <div class="architecture-info">
-            <div class="arch-label">ARCHITECTURE</div>
-            <div class="arch-value">V_04_S2</div>
-          </div>
+        <div class="howto-text" aria-labelledby="howto-title">
+          <h2 id="howto-title">How to use</h2>
+          <p>Type a locker name, then choose <strong>Access Locker</strong> to open a private session.</p>
+          <p>DropLock is for quick, secure file sharing without an account.</p>
+          <p>If you need help, use recovery or the system tour.</p>
         </div>
       </div>
 
       <div class="tags-container">
         <button id="intro-btn" class="tag" style="background:transparent; cursor:pointer; font-family:var(--font-mono);">SYSTEM_TOUR</button>
-        <span class="tag">TOR_COMPATIBLE</span>
-        <span class="tag">EPHEMERAL_STORAGE</span>
       </div>
     </main>
 
