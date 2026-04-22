@@ -1311,7 +1311,7 @@ body {
 .protocol-nav {
   display: flex;
   flex-direction: column;
-  padding: 24px 0;
+  padding: 12px 0;
 }
 
 .protocol-item {
@@ -2677,6 +2677,13 @@ body {
   font-size: 0.65rem;
   color: var(--cyan);
   border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.locker-header-badge:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
 }
 
 .logout-link {
@@ -2704,6 +2711,8 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .sidebar-vault-info {
@@ -2784,15 +2793,15 @@ body {
 }
 
 .locker-main-header {
-  padding: 12px 12px 0 12px; /* Close to zero bottom to touch the editor */
+  padding: 0px 12px 0 12px; /* Close to zero bottom to touch the editor */
   border-bottom: 1px solid var(--border-color);
   background: #0a0a0a;
 }
 
 .browser-tabs-wrapper {
   display: flex;
-  align-items: flex-end; /* Align tabs to bottom */
-  gap: 8px;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .browser-tabs {
@@ -2806,13 +2815,15 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: none;
   border-radius: 8px 8px 0 0;
-  padding: 8px 14px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
   min-width: 120px;
   max-width: 200px;
+  height: 38px;
+  box-sizing: border-box;
   transition: all 0.2s;
   position: relative;
 }
@@ -2851,18 +2862,22 @@ body {
 }
 
 .browser-add-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  width: 38px;
+  height: 38px; /* Must perfectly match the tab */
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   color: #e0e0e0;
   cursor: pointer;
-  margin-bottom: 6px;
   transition: all 0.2s;
+  margin-bottom: 0;
 }
 
 .browser-add-btn:hover {
@@ -2873,7 +2888,7 @@ body {
 
 /* Editor Area */
 .locker-editor-wrapper {
-  padding: 32px 40px;
+  padding: 16px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -2886,7 +2901,7 @@ body {
   color: var(--text-dim);
   letter-spacing: 2px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -2932,13 +2947,14 @@ body {
 
 /* Assets Column */
 .locker-right-column {
-  width: 320px;
+  width: 260px;
   border-left: 1px solid var(--border-color);
   background: rgba(0, 0, 0, 0.2);
-  padding: 32px 24px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  overflow-x: hidden;
 }
 
 .column-title {
@@ -2950,20 +2966,22 @@ body {
 }
 
 .asset-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .asset-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 16px;
+  padding: 12px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 12px;
   transition: all 0.2s;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box; /* Prevent padding from causing overflow */
 }
 
 .asset-card:hover {
@@ -2973,17 +2991,20 @@ body {
 
 .asset-icon {
   color: var(--cyan);
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .asset-meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow: hidden;
 }
 
 .asset-name {
   font-family: var(--font-sans);
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-main);
   white-space: nowrap;
@@ -2993,7 +3014,7 @@ body {
 
 .asset-size {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   color: var(--text-dim);
 }
 
@@ -3005,10 +3026,10 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 30px 15px;
   text-align: center;
   transition: all 0.2s;
-  height: 300px;
+  height: 250px;
 }
 
 .asset-dropzone:hover {
@@ -3018,27 +3039,47 @@ body {
 
 .dropzone-icon {
   color: var(--text-dim);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   opacity: 0.6;
 }
 
 .dropzone-text {
   font-family: var(--font-sans);
   font-weight: 900;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-main);
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .dropzone-sub {
   letter-spacing: 1px;
+  font-size: 0.55rem;
+}
+
+.import-file-btn {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--cyan);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.import-file-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
 }
 
 /* --- LOCKER RESPONSIVENESS (Synced with Transfer Page) --- */
 @media (max-width: 1200px) {
   .locker-right-column {
-    width: 260px;
+    width: 240px;
   }
 }
 
@@ -3102,40 +3143,46 @@ body {
     width: 100%;
     border-left: none;
     border-top: 1px solid var(--border-color);
+    padding: 12px 20px;
+    height: auto;
   }
   
   .asset-list {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    display: grid;
+    margin-bottom: 24px;
+  }
+
+  .asset-dropzone {
+    width: 100%;
+    margin-top: 0;
+    height: 180px;
   }
 }
 
 @media (max-width: 768px) {
   .locker-main-header {
     flex-direction: column;
-    gap: 20px;
-    padding: 24px;
+    gap: 0;
+    padding: 0 12px 0 12px;
   }
   
-  .main-header-left h1 {
-    font-size: 1.4rem;
+  .browser-tabs-wrapper {
+    width: 100%;
   }
 
-  .header-status-line {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .browser-tabs {
+    flex: 1;
   }
 
   .locker-editor-wrapper {
-    padding: 24px;
+    padding: 16px 20px;
   }
 
-  .locker-header-badge span {
-    display: none;
-  }
-  
+
+  /* .nav-links moved to flex layout in line 645 */
   .nav-links {
-    display: none;
+    display: flex;
   }
 
   .protocol-item span {

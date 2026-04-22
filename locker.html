@@ -21,14 +21,16 @@
           <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
         </a>
       </div>
-      <nav class="nav-links">
-        <a href="#" class="active">VAULT_ACCESS</a>
-      </nav>
+     
       <div class="nav-icons" style="gap: 20px; align-items: center;">
-        <div class="locker-header-badge">
-          <i class="fas fa-lock"></i>
-          <span>SESSION_ENCRYPTED</span>
-        </div>
+        <button id="save-locker-btn" class="locker-header-badge" style="cursor:pointer; border:none;">
+          <i class="fas fa-save"></i>
+          <span>SAVE</span>
+        </button>
+        <button id="reload-locker-btn" class="locker-header-badge" style="cursor:pointer; border:none;">
+          <i class="fas fa-sync-alt"></i>
+          <span>RELOAD</span>
+        </button>
         <a href="index.html" class="logout-link" title="Terminate Session">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
         </a>
@@ -38,7 +40,7 @@
     <div class="locker-container">
       <!-- Sidebar -->
       <aside class="transfer-sidebar locker-sidebar">
-        <div class="sidebar-header" style="border-bottom: none; padding-bottom: 0;">
+        <div class="sidebar-header" style="border-bottom: none; padding-bottom: 0px;">
           <h2 id="vault-id-display" class="sidebar-title">NAME</h2>
         </div>
 
@@ -61,9 +63,7 @@
           </a>
         </nav>
 
-        <div class="sidebar-footer">
-          <button class="btn-outline" style="width: 100%; font-size: 0.7rem; margin-bottom: 8px;">NEW_ENTRY</button>
-        </div>
+
       </aside>
 
       <!-- Main Editor Area -->
@@ -72,15 +72,7 @@
           <div class="browser-tabs-wrapper">
             <div id="notes-tabs" class="browser-tabs">
               <div class="browser-tab active">
-                <span class="tab-name"><!DOCTYPE html></span>
-                <i class="fas fa-times tab-close"></i>
-              </div>
-              <div class="browser-tab">
-                <span class="tab-name">git token</span>
-                <i class="fas fa-times tab-close"></i>
-              </div>
-              <div class="browser-tab">
-                <span class="tab-name">gemini API key</span>
+                <span class="tab-name">untitled</span>
                 <i class="fas fa-times tab-close"></i>
               </div>
             </div>
@@ -92,22 +84,20 @@
 
         <div class="locker-editor-wrapper">
           <div class="editor-label">
-            <span>MARKDOWN_BUFFER</span>
             <div class="editor-toolbar">
-              <button class="toolbar-btn"><i class="fas fa-bold"></i></button>
-              <button class="toolbar-btn"><i class="fas fa-italic"></i></button>
-              <button class="toolbar-btn"><i class="fas fa-code"></i></button>
-              <button class="toolbar-btn"><i class="fas fa-link"></i></button>
+              <button class="toolbar-btn" title="Bold"><i class="fas fa-bold"></i></button>
+              <button class="toolbar-btn" title="Italic"><i class="fas fa-italic"></i></button>
+              <button class="toolbar-btn" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+              <button class="toolbar-btn" title="Heading"><i class="fas fa-heading"></i></button>
             </div>
           </div>
           <textarea class="secure-textarea" placeholder="# Start writing securely..."></textarea>
-          <div class="editor-footer">// END_OF_BLOCK</div>
         </div>
       </main>
 
       <!-- Assets Sidebar -->
       <aside class="locker-right-column">
-        <div class="column-title">ASSET_DEPLOYMENT</div>
+        <div class="column-title">UPLOAD-YOUR-FILES</div>
         
         <div class="asset-list">
           <div class="asset-card">
@@ -131,7 +121,8 @@
             <i class="fas fa-cloud-arrow-up fa-2xl"></i>
           </div>
           <div class="dropzone-text">DRAG & DROP FILES HERE</div>
-          <div class="dropzone-sub">MAXIMUM FILE SIZE: 50MB</div>
+          <div class="dropzone-sub" style="margin-bottom: 20px;">MAXIMUM FILE SIZE: 50MB</div>
+          <button class="import-file-btn">IMPORT FILES</button>
         </div>
       </aside>
     </div>
@@ -162,9 +153,9 @@
     }
 
     // Browser Tab Logic
+    const textarea = document.querySelector('.secure-textarea');
     const tabsContainer = document.getElementById('notes-tabs');
     const addNoteBtn = document.getElementById('add-note-btn');
-    const textarea = document.querySelector('.secure-textarea');
 
     if (tabsContainer) {
       tabsContainer.addEventListener('click', (e) => {
@@ -191,21 +182,56 @@
           if (textarea) textarea.placeholder = `# Content for ${name}...`;
         }
       });
+
+      // Inline renaming logic
+      tabsContainer.addEventListener('dblclick', (e) => {
+        const nameSpan = e.target.closest('.tab-name');
+        if (nameSpan) {
+          nameSpan.contentEditable = "true";
+          nameSpan.focus();
+          
+          // Select all text
+          const range = document.createRange();
+          range.selectNodeContents(nameSpan);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+
+          const saveName = () => {
+            nameSpan.contentEditable = "false";
+            const newName = nameSpan.innerText.trim() || 'untitled';
+            nameSpan.innerText = newName;
+            if (textarea) textarea.placeholder = `# Content for ${newName}...`;
+          };
+
+          nameSpan.onblur = saveName;
+          nameSpan.onkeydown = (evt) => {
+            if (evt.key === 'Enter') {
+              evt.preventDefault();
+              saveName();
+            }
+          };
+        }
+      });
     }
 
     if (addNoteBtn) {
       addNoteBtn.addEventListener('click', () => {
-        const name = prompt('ENTER_NOTE_NAME:', 'NEW_NOTE');
-        if (name) {
-          const newTab = document.createElement('div');
-          newTab.className = 'browser-tab';
-          newTab.innerHTML = `
-            <span class="tab-name">${name}</span>
-            <i class="fas fa-times tab-close"></i>
-          `;
-          tabsContainer.appendChild(newTab);
-          newTab.click();
-          if (textarea) textarea.value = '';
+        const newTab = document.createElement('div');
+        newTab.className = 'browser-tab';
+        newTab.innerHTML = `
+          <span class="tab-name">untitled</span>
+          <i class="fas fa-times tab-close"></i>
+        `;
+        tabsContainer.appendChild(newTab);
+        newTab.click();
+        if (textarea) textarea.value = '';
+        
+        // Trigger rename immediately for the new tab
+        const nameSpan = newTab.querySelector('.tab-name');
+        if (nameSpan) {
+          const dblEvent = new MouseEvent('dblclick', { bubbles: true });
+          nameSpan.dispatchEvent(dblEvent);
         }
       });
     }
