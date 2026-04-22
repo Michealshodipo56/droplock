@@ -2937,6 +2937,13 @@ body {
   min-height: 400px;
 }
 
+.secure-textarea:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .editor-footer {
   font-family: var(--font-mono);
   font-size: 0.7rem;

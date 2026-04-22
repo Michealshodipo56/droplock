@@ -83,10 +83,6 @@
         <div class="locker-main-header">
           <div class="browser-tabs-wrapper">
             <div id="notes-tabs" class="browser-tabs">
-              <div class="browser-tab active">
-                <span class="tab-name">untitled</span>
-                <i class="fas fa-times tab-close"></i>
-              </div>
             </div>
             <button id="add-note-btn" class="browser-add-btn">
               <i class="fas fa-plus"></i>
@@ -103,7 +99,7 @@
               <button class="toolbar-btn" title="Heading"><i class="fas fa-heading"></i></button>
             </div>
           </div>
-          <textarea class="secure-textarea" placeholder="# Start writing securely..."></textarea>
+          <textarea class="secure-textarea" placeholder="# Start writing..."></textarea>
         </div>
       </main>
 
@@ -112,20 +108,6 @@
         <div class="column-title">UPLOAD-YOUR-FILES</div>
         
         <div class="asset-list">
-          <div class="asset-card">
-            <div class="asset-icon"><i class="far fa-file-pdf fa-lg"></i></div>
-            <div class="asset-meta">
-              <div class="asset-name">MANIFEST_V2.PDF</div>
-              <div class="asset-size">1.2 MB</div>
-            </div>
-          </div>
-          <div class="asset-card">
-            <div class="asset-icon"><i class="far fa-image fa-lg"></i></div>
-            <div class="asset-meta">
-              <div class="asset-name">SCHEMATICS_01.PNG</div>
-              <div class="asset-size">4.5 MB</div>
-            </div>
-          </div>
         </div>
 
         <div class="asset-dropzone">
@@ -161,6 +143,7 @@
       const saveBtn = document.getElementById('save-locker-btn');
       const reloadBtn = document.getElementById('reload-locker-btn');
       const assetList = document.querySelector('.asset-list');
+      const rightColumn = document.querySelector('.locker-right-column');
       const rightColumnTitle = document.querySelector('.column-title');
       const dropzone = document.querySelector('.asset-dropzone');
       const importBtn = document.querySelector('.import-file-btn');
@@ -187,11 +170,12 @@
       const editor = document.createElement('div');
       editor.className = 'secure-textarea';
       editor.contentEditable = 'true';
+      editor.setAttribute('data-placeholder', 'Starts writing now...');
       editor.style.whiteSpace = 'pre-wrap';
       editor.style.overflowY = 'auto';
       editor.style.border = 'none';
       editor.style.outline = 'none';
-      editor.innerHTML = '<div># Start writing securely...</div>';
+      editor.innerHTML = '';
       if (oldTextarea && oldTextarea.parentNode) oldTextarea.parentNode.replaceChild(editor, oldTextarea);
 
       const allFilesBoard = document.createElement('div');
@@ -264,7 +248,7 @@
       function renderEditorFromActive() {
         const note = activeNote();
         if (!note) return;
-        editor.innerHTML = note.content || '<div># Start writing securely...</div>';
+        editor.innerHTML = note.content || '';
       }
 
       function downloadFile(file) {
@@ -279,25 +263,32 @@
       async function deleteFile(file) {
         const ok = window.confirm(`Delete "${file.name}"?`);
         if (!ok) return;
-        const res = await fetch(apiUrl('/api/locker/files/delete'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: lockerName,
-            password: lockerPassword,
-            fileId: file.id,
-          }),
-        });
-        if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          const hint =
-            res.status === 404
-              ? ' (likely your deployed backend is missing /api/locker/files/delete)'
-              : '';
-          const msg = (text || `HTTP ${res.status}`) + hint;
-          throw new Error(msg);
+        // Optimistic UI: remove immediately
+        allFiles = allFiles.filter((f) => f.id !== file.id);
+        applyMode();
+        // Fire server request in background
+        try {
+          const res = await fetch(apiUrl('/api/locker/files/delete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: lockerName,
+              password: lockerPassword,
+              fileId: file.id,
+            }),
+          });
+          if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            const hint =
+              res.status === 404
+                ? ' (likely your deployed backend is missing /api/locker/files/delete)'
+                : '';
+            throw new Error((text || `HTTP ${res.status}`) + hint);
+          }
+        } catch (err) {
+          // Silently log — file is already removed from UI
+          console.warn('Delete request failed:', err);
         }
-        await loadNotesAndFiles();
       }
 
       function renderAssetList(files) {
@@ -380,15 +371,16 @@
           editor.style.display = 'none';
           if (toolbar) toolbar.style.display = 'none';
           allFilesBoard.style.display = 'block';
-          if (dropzone) dropzone.style.display = 'none';
-          if (rightColumnTitle) rightColumnTitle.innerText = 'FILES-ALL-NOTES';
+          // Hide the entire right column in FILES mode
+          if (rightColumn) rightColumn.style.display = 'none';
           renderAllFilesBoard();
-          renderAssetList(allFiles);
           return;
         }
         editor.style.display = 'block';
         if (toolbar) toolbar.style.display = 'flex';
         allFilesBoard.style.display = 'none';
+        // Show right column in NOTES mode
+        if (rightColumn) rightColumn.style.display = 'flex';
         if (dropzone) dropzone.style.display = 'flex';
         if (rightColumnTitle) rightColumnTitle.innerText = 'UPLOAD-YOUR-FILES';
         renderAssetList(noteFiles());
@@ -402,7 +394,7 @@
           content: n.content || '',
         }));
         if (!notes.length) {
-          notes = [{ id: generateId(), title: 'untitled', content: '<div># Start writing securely...</div>' }];
+          notes = [{ id: generateId(), title: 'untitled', content: '' }];
         }
         if (!activeNoteId || !notes.some((n) => n.id === activeNoteId)) {
           activeNoteId = notes[0].id;
@@ -495,6 +487,7 @@
         }
         const tab = e.target.closest('.browser-tab');
         if (!tab) return;
+        if (activeNoteId === tab.dataset.id) return; // Prevent re-rendering same tab so dblclick works
         saveActiveNoteLocally();
         activeNoteId = tab.dataset.id;
         renderTabs();
@@ -534,7 +527,7 @@
         const note = {
           id: generateId(),
           title: 'untitled',
-          content: '<div># Start writing securely...</div>',
+          content: '',
         };
         notes.push(note);
         activeNoteId = note.id;
@@ -603,16 +596,69 @@
         if (!fileList.length) return;
         const note = activeNote();
         if (!note) return;
+        
         const form = new FormData();
         form.append('name', lockerName);
         form.append('password', lockerPassword);
         form.append('noteId', note.id);
         fileList.forEach((file) => form.append('files', file));
-        const res = await fetch(apiUrl('/api/locker/files/upload'), { method: 'POST', body: form });
-        if (!res.ok) {
-          throw new Error('Upload failed');
+
+        const importBtn = document.querySelector('.import-file-btn');
+        let progressContainer = document.querySelector('.upload-progress-container');
+        if (!progressContainer && dropzone) {
+          progressContainer = document.createElement('div');
+          progressContainer.className = 'upload-progress-container';
+          progressContainer.style.width = '100%';
+          progressContainer.style.marginTop = '15px';
+          progressContainer.style.maxWidth = '180px';
+          progressContainer.innerHTML = `
+            <div class="upload-progress-bar" style="height: 4px; background: rgba(0,229,255,0.1); border-radius: 2px; overflow: hidden; margin: 0 auto;">
+              <div class="upload-progress-fill" style="width: 0%; height: 100%; background: var(--cyan); transition: width 0.1s linear;"></div>
+            </div>
+            <div class="upload-progress-text" style="font-size: 0.55rem; color: var(--cyan); margin-top: 6px; text-align: center; font-family: var(--font-mono); letter-spacing: 1px;">UPLOADING 0%</div>
+          `;
+          dropzone.appendChild(progressContainer);
         }
-        await loadNotesAndFiles();
+
+        if (importBtn) importBtn.style.display = 'none';
+        
+        const fill = progressContainer ? progressContainer.querySelector('.upload-progress-fill') : null;
+        const text = progressContainer ? progressContainer.querySelector('.upload-progress-text') : null;
+        if (progressContainer) progressContainer.style.display = 'block';
+        if (fill) fill.style.width = '0%';
+        if (text) text.innerText = 'UPLOADING 0%';
+
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', apiUrl('/api/locker/files/upload'), true);
+          
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable && fill && text) {
+              const p = Math.round((e.loaded / e.total) * 100);
+              fill.style.width = p + '%';
+              text.innerText = `UPLOADING ${p}%`;
+            }
+          };
+
+          xhr.onload = async () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              await loadNotesAndFiles();
+              resolve();
+            } else {
+              reject(new Error('Upload failed'));
+            }
+            if (importBtn) importBtn.style.display = 'inline-block';
+            if (progressContainer) progressContainer.style.display = 'none';
+          };
+          
+          xhr.onerror = () => {
+            reject(new Error('Upload failed'));
+            if (importBtn) importBtn.style.display = 'inline-block';
+            if (progressContainer) progressContainer.style.display = 'none';
+          };
+
+          xhr.send(form);
+        });
       }
 
       fileInput.addEventListener('change', async (e) => {
