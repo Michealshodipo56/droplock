@@ -2955,6 +2955,7 @@ body {
   flex-direction: column;
   gap: 24px;
   overflow-x: hidden;
+  min-height: 0;
 }
 
 .column-title {
@@ -2969,6 +2970,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .asset-card {
@@ -3000,6 +3005,7 @@ body {
   flex-direction: column;
   gap: 2px;
   overflow: hidden;
+  flex: 1;
 }
 
 .asset-name {
@@ -3030,6 +3036,7 @@ body {
   text-align: center;
   transition: all 0.2s;
   height: 250px;
+  flex-shrink: 0;
 }
 
 .asset-dropzone:hover {
@@ -3074,6 +3081,24 @@ body {
   background: rgba(0, 229, 255, 0.2);
   border-color: var(--cyan);
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+}
+
+.asset-delete-btn {
+  border: 1px solid rgba(255, 70, 70, 0.45);
+  background: rgba(255, 70, 70, 0.08);
+  color: #ff8c8c;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.6px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.asset-delete-btn:hover {
+  background: rgba(255, 70, 70, 0.2);
+  border-color: rgba(255, 70, 70, 0.75);
 }
 
 /* --- LOCKER RESPONSIVENESS (Synced with Transfer Page) --- */
@@ -3151,6 +3176,8 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     display: grid;
     margin-bottom: 24px;
+    max-height: 240px;
+    overflow-y: auto;
   }
 
   .asset-dropzone {

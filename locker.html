@@ -10,7 +10,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script>window.__DROPLOCK_API_BASE_URL = 'https://droplock-backend-vesm.onrender.com';</script>
+  <script>
+    (function () {
+      const qp = new URLSearchParams(window.location.search);
+      const override = (qp.get('api') || localStorage.getItem('droplock.apiBaseUrl') || '').trim();
+      if (override) {
+        window.__DROPLOCK_API_BASE_URL = override;
+        return;
+      }
+      // Default backend (override with ?api=... or localStorage key droplock.apiBaseUrl)
+      window.__DROPLOCK_API_BASE_URL =
+        window.__DROPLOCK_API_BASE_URL || 'https://droplock-backend-vesm.onrender.com';
+    })();
+  </script>
 </head>
 <body class="locker-body">
   <div class="layout-wrapper locker-layout-wrapper">
@@ -47,15 +59,15 @@
         <nav class="protocol-nav">
           <a href="#" class="protocol-item active">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            SECURE NOTES
+            NOTES
           </a>
           <a href="#" class="protocol-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            ENCRYPTED FILES
+            FILES
           </a>
           <a href="#" class="protocol-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
-            VAULT SETTINGS
+          SETTINGS
           </a>
           <a href="#" class="protocol-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
@@ -140,111 +152,511 @@
 
   <script src="app.js"></script>
   <script>
-    // Handle specific locker logic
-    const params = new URLSearchParams(window.location.search);
-    const lockerName = params.get('name');
-    const vaultIdDisplay = document.getElementById('vault-id-display');
-    const protocolTitle = document.getElementById('protocol-title');
-    
-    if (lockerName) {
-      const formattedName = lockerName.toUpperCase();
-      if (vaultIdDisplay) vaultIdDisplay.innerText = formattedName;
-      if (protocolTitle) protocolTitle.innerText = `PROTOCOL_${formattedName}_FINAL`;
-    }
+    (async function initLockerPage() {
+      const params = new URLSearchParams(window.location.search);
+      const lockerName = (params.get('name') || '').trim();
+      const vaultIdDisplay = document.getElementById('vault-id-display');
+      const tabsContainer = document.getElementById('notes-tabs');
+      const addNoteBtn = document.getElementById('add-note-btn');
+      const saveBtn = document.getElementById('save-locker-btn');
+      const reloadBtn = document.getElementById('reload-locker-btn');
+      const assetList = document.querySelector('.asset-list');
+      const rightColumnTitle = document.querySelector('.column-title');
+      const dropzone = document.querySelector('.asset-dropzone');
+      const importBtn = document.querySelector('.import-file-btn');
+      const toolbar = document.querySelector('.editor-toolbar');
+      const mainEditorWrapper = document.querySelector('.locker-editor-wrapper');
+      const notesNav = document.querySelectorAll('.protocol-nav .protocol-item')[0];
+      const filesNav = document.querySelectorAll('.protocol-nav .protocol-item')[1];
+      const API_BASE = window.__DROPLOCK_API_BASE_URL || 'http://localhost:8080';
+      const fileInput = document.createElement('input');
 
-    // Browser Tab Logic
-    const textarea = document.querySelector('.secure-textarea');
-    const tabsContainer = document.getElementById('notes-tabs');
-    const addNoteBtn = document.getElementById('add-note-btn');
+      let notes = [];
+      let allFiles = [];
+      let activeNoteId = '';
+      let mode = 'notes';
+      let lockerPassword = '';
 
-    if (tabsContainer) {
-      tabsContainer.addEventListener('click', (e) => {
-        // Handle close button
-        if (e.target.classList.contains('tab-close')) {
-          e.stopPropagation();
-          const tab = e.target.closest('.browser-tab');
-          if (document.querySelectorAll('.browser-tab').length > 1) {
-            if (tab.classList.contains('active')) {
-              const other = tab.nextElementSibling || tab.previousElementSibling;
-              if (other) other.click();
-            }
-            tab.remove();
-          }
+      if (!lockerName) {
+        window.location.href = 'index.html';
+        return;
+      }
+      if (vaultIdDisplay) vaultIdDisplay.innerText = lockerName.toUpperCase();
+
+      const oldTextarea = document.querySelector('.secure-textarea');
+      const editor = document.createElement('div');
+      editor.className = 'secure-textarea';
+      editor.contentEditable = 'true';
+      editor.style.whiteSpace = 'pre-wrap';
+      editor.style.overflowY = 'auto';
+      editor.style.border = 'none';
+      editor.style.outline = 'none';
+      editor.innerHTML = '<div># Start writing securely...</div>';
+      if (oldTextarea && oldTextarea.parentNode) oldTextarea.parentNode.replaceChild(editor, oldTextarea);
+
+      const allFilesBoard = document.createElement('div');
+      allFilesBoard.className = 'secure-textarea';
+      allFilesBoard.style.display = 'none';
+      allFilesBoard.style.overflowY = 'auto';
+      mainEditorWrapper.appendChild(allFilesBoard);
+
+      fileInput.type = 'file';
+      fileInput.multiple = true;
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+
+      function apiUrl(path) {
+        return `${API_BASE}${path}`;
+      }
+
+      async function fetchJSON(path, options = {}) {
+        const res = await fetch(apiUrl(path), options);
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status}`);
+        }
+        return res.json();
+      }
+
+      function generateId() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+        return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      }
+
+      function activeNote() {
+        return notes.find((n) => n.id === activeNoteId) || null;
+      }
+
+      function formatSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+      }
+
+      function fileIconClass(name, contentType) {
+        const lower = (name || '').toLowerCase();
+        if ((contentType || '').includes('image') || /\.(png|jpe?g|gif|webp|svg)$/i.test(lower)) return 'far fa-image fa-lg';
+        if ((contentType || '').includes('pdf') || /\.pdf$/i.test(lower)) return 'far fa-file-pdf fa-lg';
+        if ((contentType || '').includes('video') || /\.(mp4|mov|avi|mkv)$/i.test(lower)) return 'far fa-file-video fa-lg';
+        if ((contentType || '').includes('audio') || /\.(mp3|wav|ogg)$/i.test(lower)) return 'far fa-file-audio fa-lg';
+        if (/\.(zip|rar|7z|tar|gz)$/i.test(lower)) return 'far fa-file-archive fa-lg';
+        return 'far fa-file fa-lg';
+      }
+
+      function saveActiveNoteLocally() {
+        const note = activeNote();
+        if (!note) return;
+        note.content = editor.innerHTML;
+      }
+
+      function renderTabs() {
+        tabsContainer.innerHTML = '';
+        notes.forEach((note) => {
+          const tab = document.createElement('div');
+          tab.className = `browser-tab${note.id === activeNoteId ? ' active' : ''}`;
+          tab.dataset.id = note.id;
+          tab.innerHTML = `<span class="tab-name"></span><i class="fas fa-times tab-close"></i>`;
+          tab.querySelector('.tab-name').innerText = note.title || 'untitled';
+          tabsContainer.appendChild(tab);
+        });
+      }
+
+      function renderEditorFromActive() {
+        const note = activeNote();
+        if (!note) return;
+        editor.innerHTML = note.content || '<div># Start writing securely...</div>';
+      }
+
+      function downloadFile(file) {
+        const href = apiUrl(`/api/locker/files/download?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}&fileId=${encodeURIComponent(file.id)}`);
+        const a = document.createElement('a');
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.click();
+      }
+
+      async function deleteFile(file) {
+        const ok = window.confirm(`Delete "${file.name}"?`);
+        if (!ok) return;
+        const res = await fetch(apiUrl('/api/locker/files/delete'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: lockerName,
+            password: lockerPassword,
+            fileId: file.id,
+          }),
+        });
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          const hint =
+            res.status === 404
+              ? ' (likely your deployed backend is missing /api/locker/files/delete)'
+              : '';
+          const msg = (text || `HTTP ${res.status}`) + hint;
+          throw new Error(msg);
+        }
+        await loadNotesAndFiles();
+      }
+
+      function renderAssetList(files) {
+        if (!assetList) return;
+        assetList.innerHTML = '';
+        if (!files.length) {
+          const empty = document.createElement('div');
+          empty.className = 'asset-size';
+          empty.innerText = 'NO FILES YET';
+          assetList.appendChild(empty);
           return;
         }
+        files.forEach((file) => {
+          const card = document.createElement('div');
+          card.className = 'asset-card';
+          card.innerHTML = `
+            <div class="asset-icon"><i class="${fileIconClass(file.name, file.contentType)}"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name"></div>
+              <div class="asset-size"></div>
+            </div>
+            <button class="asset-delete-btn" type="button">CANCEL</button>
+          `;
+          card.querySelector('.asset-name').innerText = file.name;
+          card.querySelector('.asset-size').innerText = formatSize(file.size || 0);
+          card.addEventListener('click', () => downloadFile(file));
+          const deleteBtn = card.querySelector('.asset-delete-btn');
+          deleteBtn.addEventListener('click', async (evt) => {
+            evt.stopPropagation();
+            try {
+              await deleteFile(file);
+            } catch (err) {
+              alert(`Unable to delete file: ${err && err.message ? err.message : 'unknown error'}`);
+            }
+          });
+          assetList.appendChild(card);
+        });
+      }
 
-        // Handle tab switch
-        const tab = e.target.closest('.browser-tab');
-        if (tab) {
-          document.querySelectorAll('.browser-tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          const name = tab.querySelector('.tab-name').innerText;
-          if (textarea) textarea.placeholder = `# Content for ${name}...`;
+      function renderAllFilesBoard() {
+        allFilesBoard.innerHTML = '';
+        if (!allFiles.length) {
+          allFilesBoard.innerHTML = '<div class="asset-size">NO FILES IN THIS LOCKER</div>';
+          return;
         }
+        allFiles.forEach((file) => {
+          const row = document.createElement('div');
+          row.className = 'asset-card';
+          row.style.marginBottom = '10px';
+          row.innerHTML = `
+            <div class="asset-icon"><i class="${fileIconClass(file.name, file.contentType)}"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name"></div>
+              <div class="asset-size"></div>
+            </div>
+            <button class="asset-delete-btn" type="button">CANCEL</button>
+          `;
+          row.querySelector('.asset-name').innerText = `${file.name} (${file.noteId || 'unknown note'})`;
+          row.querySelector('.asset-size').innerText = formatSize(file.size || 0);
+          row.addEventListener('click', () => downloadFile(file));
+          const deleteBtn = row.querySelector('.asset-delete-btn');
+          deleteBtn.addEventListener('click', async (evt) => {
+            evt.stopPropagation();
+            try {
+              await deleteFile(file);
+            } catch (err) {
+              alert(`Unable to delete file: ${err && err.message ? err.message : 'unknown error'}`);
+            }
+          });
+          allFilesBoard.appendChild(row);
+        });
+      }
+
+      function noteFiles() {
+        return allFiles.filter((f) => f.noteId === activeNoteId);
+      }
+
+      function applyMode() {
+        if (mode === 'files') {
+          editor.style.display = 'none';
+          if (toolbar) toolbar.style.display = 'none';
+          allFilesBoard.style.display = 'block';
+          if (dropzone) dropzone.style.display = 'none';
+          if (rightColumnTitle) rightColumnTitle.innerText = 'FILES-ALL-NOTES';
+          renderAllFilesBoard();
+          renderAssetList(allFiles);
+          return;
+        }
+        editor.style.display = 'block';
+        if (toolbar) toolbar.style.display = 'flex';
+        allFilesBoard.style.display = 'none';
+        if (dropzone) dropzone.style.display = 'flex';
+        if (rightColumnTitle) rightColumnTitle.innerText = 'UPLOAD-YOUR-FILES';
+        renderAssetList(noteFiles());
+      }
+
+      async function loadNotesAndFiles() {
+        const notesResp = await fetchJSON(`/api/locker/notes?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}`);
+        notes = (notesResp.notes || []).map((n) => ({
+          id: n.id,
+          title: n.title || 'untitled',
+          content: n.content || '',
+        }));
+        if (!notes.length) {
+          notes = [{ id: generateId(), title: 'untitled', content: '<div># Start writing securely...</div>' }];
+        }
+        if (!activeNoteId || !notes.some((n) => n.id === activeNoteId)) {
+          activeNoteId = notes[0].id;
+        }
+        const filesResp = await fetchJSON(`/api/locker/files?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}`);
+        allFiles = filesResp.files || [];
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      }
+
+      async function saveAllNotes() {
+        saveActiveNoteLocally();
+        for (const note of notes) {
+          await fetchJSON('/api/locker/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: lockerName,
+              password: lockerPassword,
+              noteId: note.id,
+              title: (note.title || 'untitled').trim() || 'untitled',
+              content: note.content || '',
+            }),
+          });
+        }
+      }
+
+      async function ensurePassword() {
+        const storageKey = `droplock.lockerPassword:${lockerName}`;
+        lockerPassword = (sessionStorage.getItem(storageKey) || '').trim();
+        let attempts = 0;
+        while (attempts < 3) {
+          if (!lockerPassword) {
+            lockerPassword = (window.prompt(`Enter password for locker "${lockerName}"`) || '').trim();
+          }
+          if (!lockerPassword) {
+            attempts++;
+            continue;
+          }
+          const res = await fetch(apiUrl('/api/locker/open'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+          });
+          if (res.ok) {
+            sessionStorage.setItem(storageKey, lockerPassword);
+            return true;
+          }
+          lockerPassword = '';
+          attempts++;
+          alert('Invalid locker password.');
+        }
+        return false;
+      }
+
+      const notesAndFilesNav = document.querySelectorAll('.protocol-nav .protocol-item');
+      notesAndFilesNav.forEach((item, idx) => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          notesAndFilesNav.forEach((el) => el.classList.remove('active'));
+          item.classList.add('active');
+          if (idx === 0) mode = 'notes';
+          if (idx === 1) mode = 'files';
+          applyMode();
+        });
       });
 
-      // Inline renaming logic
+      tabsContainer.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('tab-close')) {
+          e.stopPropagation();
+          if (notes.length === 1) return;
+          const tab = e.target.closest('.browser-tab');
+          const noteId = tab ? tab.dataset.id : '';
+          if (!noteId) return;
+          saveActiveNoteLocally();
+          const next = notes.find((n) => n.id !== noteId);
+          notes = notes.filter((n) => n.id !== noteId);
+          allFiles = allFiles.filter((f) => f.noteId !== noteId);
+          activeNoteId = next ? next.id : '';
+          renderTabs();
+          renderEditorFromActive();
+          applyMode();
+          await fetch(apiUrl('/api/locker/notes/delete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword, noteId }),
+          });
+          return;
+        }
+        const tab = e.target.closest('.browser-tab');
+        if (!tab) return;
+        saveActiveNoteLocally();
+        activeNoteId = tab.dataset.id;
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      });
+
       tabsContainer.addEventListener('dblclick', (e) => {
         const nameSpan = e.target.closest('.tab-name');
-        if (nameSpan) {
-          nameSpan.contentEditable = "true";
-          nameSpan.focus();
-          
-          // Select all text
-          const range = document.createRange();
-          range.selectNodeContents(nameSpan);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-
-          const saveName = () => {
-            nameSpan.contentEditable = "false";
-            const newName = nameSpan.innerText.trim() || 'untitled';
-            nameSpan.innerText = newName;
-            if (textarea) textarea.placeholder = `# Content for ${newName}...`;
-          };
-
-          nameSpan.onblur = saveName;
-          nameSpan.onkeydown = (evt) => {
-            if (evt.key === 'Enter') {
-              evt.preventDefault();
-              saveName();
-            }
-          };
-        }
+        if (!nameSpan) return;
+        const tab = e.target.closest('.browser-tab');
+        const note = notes.find((n) => n.id === (tab ? tab.dataset.id : ''));
+        if (!note) return;
+        nameSpan.contentEditable = 'true';
+        nameSpan.focus();
+        const range = document.createRange();
+        range.selectNodeContents(nameSpan);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        const finishRename = () => {
+          nameSpan.contentEditable = 'false';
+          note.title = nameSpan.innerText.trim() || 'untitled';
+          renderTabs();
+        };
+        nameSpan.onblur = finishRename;
+        nameSpan.onkeydown = (evt) => {
+          if (evt.key === 'Enter') {
+            evt.preventDefault();
+            finishRename();
+          }
+        };
       });
-    }
 
-    if (addNoteBtn) {
       addNoteBtn.addEventListener('click', () => {
-        const newTab = document.createElement('div');
-        newTab.className = 'browser-tab';
-        newTab.innerHTML = `
-          <span class="tab-name">untitled</span>
-          <i class="fas fa-times tab-close"></i>
-        `;
-        tabsContainer.appendChild(newTab);
-        newTab.click();
-        if (textarea) textarea.value = '';
-        
-        // Trigger rename immediately for the new tab
-        const nameSpan = newTab.querySelector('.tab-name');
-        if (nameSpan) {
-          const dblEvent = new MouseEvent('dblclick', { bubbles: true });
-          nameSpan.dispatchEvent(dblEvent);
+        saveActiveNoteLocally();
+        const note = {
+          id: generateId(),
+          title: 'untitled',
+          content: '<div># Start writing securely...</div>',
+        };
+        notes.push(note);
+        activeNoteId = note.id;
+        mode = 'notes';
+        notesNav.classList.add('active');
+        if (filesNav) filesNav.classList.remove('active');
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      });
+
+      if (toolbar) {
+        const buttons = toolbar.querySelectorAll('.toolbar-btn');
+        const runEditorCommand = (command, value = null) => {
+          editor.focus();
+          document.execCommand(command, false, value);
+        };
+        buttons.forEach((btn) => {
+          btn.addEventListener('mousedown', (evt) => {
+            evt.preventDefault();
+          });
+        });
+        if (buttons[0]) buttons[0].addEventListener('click', () => runEditorCommand('bold'));
+        if (buttons[1]) buttons[1].addEventListener('click', () => runEditorCommand('italic'));
+        if (buttons[2]) buttons[2].addEventListener('click', () => runEditorCommand('insertUnorderedList'));
+        if (buttons[3]) {
+          buttons[3].addEventListener('click', () => {
+            const size = (window.prompt('Enter text size from 1 to 7', '4') || '').trim();
+            if (!/^[1-7]$/.test(size)) return;
+            runEditorCommand('fontSize', size);
+          });
+        }
+      }
+
+      saveBtn.addEventListener('click', async () => {
+        saveBtn.disabled = true;
+        const label = saveBtn.querySelector('span');
+        const oldText = label ? label.innerText : '';
+        if (label) label.innerText = 'SAVING...';
+        try {
+          await saveAllNotes();
+          await loadNotesAndFiles();
+          if (label) label.innerText = 'SAVED';
+          setTimeout(() => {
+            if (label) label.innerText = oldText || 'SAVE';
+          }, 1200);
+        } catch (err) {
+          alert('Unable to save notes. Check your connection.');
+          if (label) label.innerText = oldText || 'SAVE';
+        } finally {
+          saveBtn.disabled = false;
         }
       });
-    }
 
-    // Set sample content
-    if (textarea) {
-      textarea.value = `# Start writing securely...
+      reloadBtn.addEventListener('click', () => window.location.reload());
 
-The protocol remains unchanged. All transmissions must be routed through the primary relay.
+      importBtn.addEventListener('click', () => {
+        if (mode !== 'notes') {
+          alert('Switch to NOTES to upload into a specific note.');
+          return;
+        }
+        fileInput.click();
+      });
 
-- Use AES-256 for all payload fragments.
-- TTL set to 3600ms.`;
-    }
+      async function uploadFiles(fileList) {
+        if (!fileList.length) return;
+        const note = activeNote();
+        if (!note) return;
+        const form = new FormData();
+        form.append('name', lockerName);
+        form.append('password', lockerPassword);
+        form.append('noteId', note.id);
+        fileList.forEach((file) => form.append('files', file));
+        const res = await fetch(apiUrl('/api/locker/files/upload'), { method: 'POST', body: form });
+        if (!res.ok) {
+          throw new Error('Upload failed');
+        }
+        await loadNotesAndFiles();
+      }
+
+      fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files || []);
+        fileInput.value = '';
+        if (!files.length) return;
+        try {
+          await uploadFiles(files);
+        } catch (err) {
+          alert('File upload failed.');
+        }
+      });
+
+      if (dropzone) {
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+        dropzone.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          if (mode !== 'notes') {
+            alert('Switch to NOTES to upload into a specific note.');
+            return;
+          }
+          const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+          if (!files.length) return;
+          try {
+            await uploadFiles(files);
+          } catch (err) {
+            alert('File upload failed.');
+          }
+        });
+      }
+
+      const authed = await ensurePassword();
+      if (!authed) {
+        window.location.href = 'index.html';
+        return;
+      }
+      try {
+        await loadNotesAndFiles();
+      } catch (err) {
+        alert('Unable to load locker data.');
+      }
+    })();
   </script>
 </body>
 </html>

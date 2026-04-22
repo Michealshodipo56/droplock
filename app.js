@@ -370,6 +370,9 @@ initRecoveryModal();
       }
 
       // Success — save to recent vaults and redirect
+      try {
+        sessionStorage.setItem(`droplock.lockerPassword:${pendingLockerName}`, password);
+      } catch (e) {}
       saveToRecentVaults(pendingLockerName);
       hideAccessModal();
       window.location.href = `locker.html?name=${encodeURIComponent(pendingLockerName)}`;
