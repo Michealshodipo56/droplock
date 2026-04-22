@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropLock - Privacy Manifesto</title>
+  <link rel="icon" type="image/png" href="images/Screenshot from 2026-04-09 13-10-14.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="manifesto-body">
+  <!-- Canvas Background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="manifesto-page-wrapper">
+    <nav class="manifesto-nav">
+      <div class="logo">
+        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
+        </a>
+      </div>
+      <a href="index.html" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        BACK_TO_TERMINAL
+      </a>
+    </nav>
+
+    <main class="manifesto-main">
+      <div class="glassmorphism-panel active-manifesto">
+        <header class="manifesto-hero">
+          <h1 class="manifesto-title">PRIVACY_MANIFESTO</h1>
+          <p class="manifesto-subtitle">ENCRYPTION_AND_ANONYMITY_STANDARDS_FOR_REAL-WORLD_TRANSFER</p>
+          <div class="manifesto-hero-stats">
+            <div class="manifesto-stat-chip">
+              <span class="chip-label">ENCRYPTION</span>
+              <span class="chip-value">AES-256-GCM</span>
+            </div>
+            <div class="manifesto-stat-chip">
+              <span class="chip-label">KEY_DERIVATION</span>
+              <span class="chip-value">ARGON2ID</span>
+            </div>
+            <div class="manifesto-stat-chip">
+              <span class="chip-label">MODEL</span>
+              <span class="chip-value">ZERO-KNOWLEDGE</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="manifesto-grid">
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_01 // ENCRYPTION</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <h2 class="protocol-name">AES-256 GCM</h2>
+            <p class="protocol-desc">Every payload is encrypted client-side before transport. Integrity tags are verified on each decrypt operation, so tampering is detectable instantly.</p>
+          </div>
+
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_02 // KEY_DERIVATION</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+            </div>
+            <h2 class="protocol-name">Argon2id</h2>
+            <p class="protocol-desc">Passwords are stretched with memory-hard parameters to resist modern GPU cracking. Key derivation happens locally, never in a remote plaintext channel.</p>
+          </div>
+
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_03 // ANONYMITY</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+            </div>
+            <h2 class="protocol-name">Metadata Minimization</h2>
+            <p class="protocol-desc">Requests are designed with minimal identifying surface. Session scope is short-lived and transport metadata is reduced to what transfer reliability requires.</p>
+          </div>
+
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_04 // STORAGE</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <h2 class="protocol-name">Zero-Knowledge</h2>
+            <p class="protocol-desc">Stored objects remain opaque ciphertext. Infrastructure can hold encrypted blobs but does not hold the secrets required to decrypt them.</p>
+          </div>
+
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_05 // PERSISTENCE</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+            </div>
+            <h2 class="protocol-name">Ephemeral Tunnels</h2>
+            <p class="protocol-desc">Session-state is treated as disposable by default. Inactive paths are cleaned aggressively so transfer traces are short-lived and bounded.</p>
+          </div>
+
+          <div class="protocol-card">
+            <div class="protocol-id">PROTOCOL_06 // FUTURE_PROOF</div>
+            <div class="manifesto-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v19M5 8h14M5 16h14"></path></svg>
+            </div>
+            <h2 class="protocol-name">Quantum Readiness</h2>
+            <p class="protocol-desc">Crypto modules are isolated so algorithm upgrades can be rolled in-place. Migration paths are designed for gradual adoption of post-quantum primitives.</p>
+          </div>
+        </div>
+        
+        <footer class="manifesto-footer">
+          <div class="manifesto-footer-line">DROPLOCK // ARCHITECTURE_V_04_S2 // VERIFIED_END_TO_END</div>
+          <p class="manifesto-footer-note">Privacy is implemented as system behavior, not policy text.</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

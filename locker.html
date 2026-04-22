@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropLock - Secure Vault Session</title>
+  <link rel="icon" type="image/png" href="images/droplock-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>window.__DROPLOCK_API_BASE_URL = 'https://droplock-backend-vesm.onrender.com';</script>
+</head>
+<body class="locker-body">
+  <div class="layout-wrapper locker-layout-wrapper">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="logo">
+        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
+        </a>
+      </div>
+      <nav class="nav-links">
+        <a href="#" class="active">VAULT_ACCESS</a>
+      </nav>
+      <div class="nav-icons" style="gap: 20px; align-items: center;">
+        <div class="locker-header-badge">
+          <i class="fas fa-lock"></i>
+          <span>SESSION_ENCRYPTED</span>
+        </div>
+        <a href="index.html" class="logout-link" title="Terminate Session">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="locker-container">
+      <!-- Sidebar -->
+      <aside class="transfer-sidebar locker-sidebar">
+        <div class="sidebar-header" style="border-bottom: none; padding-bottom: 0;">
+          <h2 id="vault-id-display" class="sidebar-title">NAME</h2>
+        </div>
+
+        <nav class="protocol-nav">
+          <a href="#" class="protocol-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            SECURE NOTES
+          </a>
+          <a href="#" class="protocol-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            ENCRYPTED FILES
+          </a>
+          <a href="#" class="protocol-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
+            VAULT SETTINGS
+          </a>
+          <a href="#" class="protocol-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
+            ARCHIVE
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="btn-outline" style="width: 100%; font-size: 0.7rem; margin-bottom: 8px;">NEW_ENTRY</button>
+        </div>
+      </aside>
+
+      <!-- Main Editor Area -->
+      <main class="locker-main-content">
+        <div class="locker-main-header">
+          <div class="browser-tabs-wrapper">
+            <div id="notes-tabs" class="browser-tabs">
+              <div class="browser-tab active">
+                <span class="tab-name"><!DOCTYPE html></span>
+                <i class="fas fa-times tab-close"></i>
+              </div>
+              <div class="browser-tab">
+                <span class="tab-name">git token</span>
+                <i class="fas fa-times tab-close"></i>
+              </div>
+              <div class="browser-tab">
+                <span class="tab-name">gemini API key</span>
+                <i class="fas fa-times tab-close"></i>
+              </div>
+            </div>
+            <button id="add-note-btn" class="browser-add-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="locker-editor-wrapper">
+          <div class="editor-label">
+            <span>MARKDOWN_BUFFER</span>
+            <div class="editor-toolbar">
+              <button class="toolbar-btn"><i class="fas fa-bold"></i></button>
+              <button class="toolbar-btn"><i class="fas fa-italic"></i></button>
+              <button class="toolbar-btn"><i class="fas fa-code"></i></button>
+              <button class="toolbar-btn"><i class="fas fa-link"></i></button>
+            </div>
+          </div>
+          <textarea class="secure-textarea" placeholder="# Start writing securely..."></textarea>
+          <div class="editor-footer">// END_OF_BLOCK</div>
+        </div>
+      </main>
+
+      <!-- Assets Sidebar -->
+      <aside class="locker-right-column">
+        <div class="column-title">ASSET_DEPLOYMENT</div>
+        
+        <div class="asset-list">
+          <div class="asset-card">
+            <div class="asset-icon"><i class="far fa-file-pdf fa-lg"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name">MANIFEST_V2.PDF</div>
+              <div class="asset-size">1.2 MB</div>
+            </div>
+          </div>
+          <div class="asset-card">
+            <div class="asset-icon"><i class="far fa-image fa-lg"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name">SCHEMATICS_01.PNG</div>
+              <div class="asset-size">4.5 MB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset-dropzone">
+          <div class="dropzone-icon">
+            <i class="fas fa-cloud-arrow-up fa-2xl"></i>
+          </div>
+          <div class="dropzone-text">DRAG & DROP FILES HERE</div>
+          <div class="dropzone-sub">MAXIMUM FILE SIZE: 50MB</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bottom-footer">
+      <div class="footer-left"><span class="copyright-icon">©</span> 2026 DROPLOCK. ANONYMOUS_PRECISION.</div>
+      <div class="footer-right">
+        <a href="#" class="footer-link">SECURITY_PROTOCOL</a>
+        <span>MANUAL</span>
+        <a href="manifesto.html" class="footer-link">PRIVACY_MANIFESTO</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Handle specific locker logic
+    const params = new URLSearchParams(window.location.search);
+    const lockerName = params.get('name');
+    const vaultIdDisplay = document.getElementById('vault-id-display');
+    const protocolTitle = document.getElementById('protocol-title');
+    
+    if (lockerName) {
+      const formattedName = lockerName.toUpperCase();
+      if (vaultIdDisplay) vaultIdDisplay.innerText = formattedName;
+      if (protocolTitle) protocolTitle.innerText = `PROTOCOL_${formattedName}_FINAL`;
+    }
+
+    // Browser Tab Logic
+    const tabsContainer = document.getElementById('notes-tabs');
+    const addNoteBtn = document.getElementById('add-note-btn');
+    const textarea = document.querySelector('.secure-textarea');
+
+    if (tabsContainer) {
+      tabsContainer.addEventListener('click', (e) => {
+        // Handle close button
+        if (e.target.classList.contains('tab-close')) {
+          e.stopPropagation();
+          const tab = e.target.closest('.browser-tab');
+          if (document.querySelectorAll('.browser-tab').length > 1) {
+            if (tab.classList.contains('active')) {
+              const other = tab.nextElementSibling || tab.previousElementSibling;
+              if (other) other.click();
+            }
+            tab.remove();
+          }
+          return;
+        }
+
+        // Handle tab switch
+        const tab = e.target.closest('.browser-tab');
+        if (tab) {
+          document.querySelectorAll('.browser-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const name = tab.querySelector('.tab-name').innerText;
+          if (textarea) textarea.placeholder = `# Content for ${name}...`;
+        }
+      });
+    }
+
+    if (addNoteBtn) {
+      addNoteBtn.addEventListener('click', () => {
+        const name = prompt('ENTER_NOTE_NAME:', 'NEW_NOTE');
+        if (name) {
+          const newTab = document.createElement('div');
+          newTab.className = 'browser-tab';
+          newTab.innerHTML = `
+            <span class="tab-name">${name}</span>
+            <i class="fas fa-times tab-close"></i>
+          `;
+          tabsContainer.appendChild(newTab);
+          newTab.click();
+          if (textarea) textarea.value = '';
+        }
+      });
+    }
+
+    // Set sample content
+    if (textarea) {
+      textarea.value = `# Start writing securely...
+
+The protocol remains unchanged. All transmissions must be routed through the primary relay.
+
+- Use AES-256 for all payload fragments.
+- TTL set to 3600ms.`;
+    }
+  </script>
+</body>
+</html>
