@@ -1343,6 +1343,30 @@ body {
   border-left-color: var(--cyan);
 }
 
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  padding: 12px 48px; /* Indent under the parent link */
+  transition: all 0.2s;
+  border-left: 2px solid transparent;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.02);
+  color: var(--cyan);
+}
+
+.icon-fixed {
+  width: 16px;
+  text-align: center;
+}
+
 .transfer-main {
   flex: 1;
   padding: 0 40px 40px 40px;

@@ -65,10 +65,16 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             FILES
           </a>
-          <a href="#" class="protocol-item">
+          <a href="#" class="protocol-item settings-nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
-          SETTINGS
+            SETTINGS
+            <i class="fas fa-chevron-down dropdown-icon" style="margin-left: auto; font-size: 0.8rem; transition: transform 0.2s;"></i>
           </a>
+          <div class="settings-dropdown" style="display: none; flex-direction: column; padding: 4px 0; background: rgba(0, 0, 0, 0.15);">
+            <a href="#" class="dropdown-item"><i class="fas fa-shield-halved icon-fixed"></i> SECURE ACCOUNT</a>
+            <a href="#" class="dropdown-item"><i class="fas fa-key icon-fixed"></i> CHANGE PASSWORD</a>
+            <a href="#" class="dropdown-item" style="color: #ff4a4a;"><i class="fas fa-trash-alt icon-fixed"></i> DELETE ACCOUNT</a>
+          </div>
           <a href="#" class="protocol-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
             ARCHIVE
@@ -130,6 +136,23 @@
         <a href="manifesto.html" class="footer-link">PRIVACY_MANIFESTO</a>
       </div>
     </footer>
+  </div>
+
+  <!-- Delete Locker Confirmation Modal -->
+  <div id="delete-locker-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#0d0d0d; border:1px solid rgba(255,70,70,0.4); border-radius:8px; padding:36px 32px; max-width:420px; width:90%; font-family:var(--font-mono); text-align:center;">
+      <div style="font-size:2rem; color:#ff4a4a; margin-bottom:16px;"><i class="fas fa-skull-crossbones"></i></div>
+      <h2 style="color:#fff; font-size:1rem; letter-spacing:2px; margin-bottom:12px;">DELETE LOCKER</h2>
+      <p style="color:#aaa; font-size:0.75rem; line-height:1.7; margin-bottom:24px;">This action is <strong style="color:#ff4a4a;">permanent and irreversible</strong>.<br>All notes and files will be erased from the server.</p>
+      <p style="color:#aaa; font-size:0.7rem; margin-bottom:10px;">Type <strong style="color:#fff;" id="delete-confirm-label"></strong> to confirm:</p>
+      <input id="delete-confirm-input" type="text" placeholder="locker name" autocomplete="off"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,70,70,0.3); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:20px; box-sizing:border-box;">
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="delete-modal-cancel" style="flex:1; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#aaa; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">CANCEL</button>
+        <button id="delete-modal-confirm" style="flex:1; padding:10px; background:rgba(255,70,70,0.15); border:1px solid rgba(255,70,70,0.5); border-radius:4px; color:#ff4a4a; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">DELETE</button>
+      </div>
+      <p id="delete-modal-error" style="color:#ff4a4a; font-size:0.68rem; margin-top:14px; min-height:1em;"></p>
+    </div>
   </div>
 
   <script src="app.js"></script>
@@ -455,7 +478,24 @@
       notesAndFilesNav.forEach((item, idx) => {
         item.addEventListener('click', (e) => {
           e.preventDefault();
-          notesAndFilesNav.forEach((el) => el.classList.remove('active'));
+          if (item.classList.contains('settings-nav-item')) {
+            const dropdown = document.querySelector('.settings-dropdown');
+            const icon = item.querySelector('.dropdown-icon');
+            if (dropdown.style.display === 'none') {
+              dropdown.style.display = 'flex';
+              icon.style.transform = 'rotate(180deg)';
+            } else {
+              dropdown.style.display = 'none';
+              icon.style.transform = 'rotate(0deg)';
+            }
+            return;
+          }
+          
+          notesAndFilesNav.forEach((el) => {
+            if (!el.classList.contains('settings-nav-item')) {
+              el.classList.remove('active');
+            }
+          });
           item.classList.add('active');
           if (idx === 0) mode = 'notes';
           if (idx === 1) mode = 'files';
@@ -702,6 +742,69 @@
       } catch (err) {
         alert('Unable to load locker data.');
       }
+
+      // --- Delete Locker Modal ---
+      const deleteModal = document.getElementById('delete-locker-modal');
+      const deleteConfirmLabel = document.getElementById('delete-confirm-label');
+      const deleteConfirmInput = document.getElementById('delete-confirm-input');
+      const deleteModalCancel = document.getElementById('delete-modal-cancel');
+      const deleteModalConfirm = document.getElementById('delete-modal-confirm');
+      const deleteModalError = document.getElementById('delete-modal-error');
+
+      const deleteAccountLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('DELETE ACCOUNT'));
+
+      if (deleteAccountLink) {
+        deleteAccountLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          deleteConfirmLabel.innerText = lockerName.toUpperCase();
+          deleteConfirmInput.value = '';
+          deleteModalError.innerText = '';
+          deleteModal.style.display = 'flex';
+          setTimeout(() => deleteConfirmInput.focus(), 50);
+        });
+      }
+
+      if (deleteModalCancel) {
+        deleteModalCancel.addEventListener('click', () => {
+          deleteModal.style.display = 'none';
+        });
+      }
+
+      if (deleteModalConfirm) {
+        deleteModalConfirm.addEventListener('click', async () => {
+          deleteModalError.innerText = '';
+          const typed = (deleteConfirmInput.value || '').trim().toLowerCase();
+          if (typed !== lockerName.toLowerCase()) {
+            deleteModalError.innerText = 'Locker name does not match. Please try again.';
+            return;
+          }
+          deleteModalConfirm.disabled = true;
+          deleteModalConfirm.innerText = 'DELETING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/delete'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            sessionStorage.removeItem(`droplock.lockerPassword:${lockerName}`);
+            window.location.href = 'index.html';
+          } catch (err) {
+            deleteModalError.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            deleteModalConfirm.disabled = false;
+            deleteModalConfirm.innerText = 'DELETE';
+          }
+        });
+      }
+
+      // Close modal on backdrop click
+      deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) deleteModal.style.display = 'none';
+      });
     })();
   </script>
 </body>
