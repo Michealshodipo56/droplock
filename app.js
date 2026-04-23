@@ -197,47 +197,313 @@ if (canvas) {
   });
 }
 
-// --- Recovery Modal Interaction ---
+// --- Recovery Modal Multi-Step Logic ---
 function initRecoveryModal() {
   const recoveryToggle = document.getElementById('recovery-toggle');
   const recoveryModal = document.getElementById('recovery-modal');
   const closeModal = document.getElementById('close-modal');
 
-  if (recoveryToggle && recoveryModal && closeModal) {
-    recoveryToggle.style.cursor = 'pointer';
-    
-    recoveryToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      recoveryModal.classList.add('active');
-    });
+  if (!recoveryToggle || !recoveryModal || !closeModal) return;
 
-    closeModal.addEventListener('click', () => {
-      recoveryModal.classList.remove('active');
-    });
+  recoveryToggle.style.cursor = 'pointer';
 
-    // Exit modal on clicking the dark background
-    recoveryModal.addEventListener('click', (e) => {
-      if (e.target === recoveryModal) {
-        recoveryModal.classList.remove('active');
+  let recoveryLockerName = '';
+  let recoveryToken = '';
+
+  const steps = [1, 2, 3, 4, 5];
+
+  function showStep(num) {
+    steps.forEach(n => {
+      const el = document.getElementById(`recovery-step-${n}`);
+      if (el) {
+        el.classList.remove('active');
+        el.style.display = 'none';
       }
     });
+    const target = document.getElementById(`recovery-step-${num}`);
+    if (target) {
+      target.style.display = 'block';
+      // Trigger reflow then add active for animation
+      void target.offsetHeight;
+      target.classList.add('active');
+    }
+  }
 
-    // Handle Submission
-    const submitBtn = document.getElementById('submit-recovery');
+  function resetModal() {
+    recoveryLockerName = '';
+    recoveryToken = '';
     const nameInput = document.getElementById('recovery-locker-name');
+    const emailInput = document.getElementById('recovery-email-input');
+    const newPwInput = document.getElementById('recovery-new-password');
+    const confirmPwInput = document.getElementById('recovery-confirm-password');
+    if (nameInput) nameInput.value = '';
+    if (emailInput) emailInput.value = '';
+    if (newPwInput) newPwInput.value = '';
+    if (confirmPwInput) confirmPwInput.value = '';
+    // Clear code digits
+    document.querySelectorAll('.code-digit').forEach(d => { d.value = ''; });
+    // Clear errors
+    [1, 2, 3, 4].forEach(n => {
+      const err = document.getElementById(`recovery-step${n}-error`);
+      if (err) err.innerText = '';
+    });
+    // Reset button states
+    ['recovery-next-1', 'recovery-next-2', 'recovery-next-3', 'recovery-next-4'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.disabled = false; }
+    });
+    const n1 = document.getElementById('recovery-next-1');
+    if (n1) n1.innerText = 'NEXT';
+    const n2 = document.getElementById('recovery-next-2');
+    if (n2) n2.innerText = 'SEND CODE';
+    const n3 = document.getElementById('recovery-next-3');
+    if (n3) n3.innerText = 'VERIFY CODE';
+    const n4 = document.getElementById('recovery-next-4');
+    if (n4) n4.innerText = 'RESET PASSWORD';
+    showStep(1);
+  }
 
-    if (submitBtn && nameInput) {
-      submitBtn.addEventListener('click', () => {
-        const lockerName = nameInput.value.trim();
-        if (!lockerName) {
-          alert('ERROR: Please enter a valid LOCKER NAME.');
+  function openModal() {
+    resetModal();
+    recoveryModal.classList.add('active');
+    setTimeout(() => {
+      const nameInput = document.getElementById('recovery-locker-name');
+      if (nameInput) nameInput.focus();
+    }, 100);
+  }
+
+  function closeRecoveryModal() {
+    recoveryModal.classList.remove('active');
+  }
+
+  recoveryToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal();
+  });
+
+  closeModal.addEventListener('click', closeRecoveryModal);
+
+  recoveryModal.addEventListener('click', (e) => {
+    if (e.target === recoveryModal) closeRecoveryModal();
+  });
+
+  // --- Step 1: Check locker exists ---
+  const next1 = document.getElementById('recovery-next-1');
+  if (next1) {
+    next1.addEventListener('click', async () => {
+      const nameInput = document.getElementById('recovery-locker-name');
+      const err = document.getElementById('recovery-step1-error');
+      const name = (nameInput ? nameInput.value : '').trim();
+      if (!name) {
+        err.innerText = 'ERROR: LOCKER_NAME_REQUIRED';
+        return;
+      }
+      err.innerText = '';
+      next1.disabled = true;
+      next1.innerText = 'CHECKING...';
+      try {
+        const res = await postJSON('/api/locker/check', { name });
+        const body = await res.json();
+        if (!body.exists) {
+          err.innerText = 'ERROR: LOCKER_NOT_FOUND';
+          next1.disabled = false;
+          next1.innerText = 'NEXT';
           return;
         }
-        
-        // Redirect to the recovery page with the identifier
-        window.location.href = `recovery.html?locker=${encodeURIComponent(lockerName)}`;
-      });
-    }
+        recoveryLockerName = name;
+        next1.disabled = false;
+        next1.innerText = 'NEXT';
+        showStep(2);
+        setTimeout(() => {
+          const emailInput = document.getElementById('recovery-email-input');
+          if (emailInput) emailInput.focus();
+        }, 100);
+      } catch (e) {
+        err.innerText = 'ERROR: BACKEND_UNAVAILABLE';
+        next1.disabled = false;
+        next1.innerText = 'NEXT';
+      }
+    });
+  }
+
+  // --- Step 2: Send code to email ---
+  const next2 = document.getElementById('recovery-next-2');
+  const back2 = document.getElementById('recovery-back-2');
+  if (back2) {
+    back2.addEventListener('click', () => showStep(1));
+  }
+  if (next2) {
+    next2.addEventListener('click', async () => {
+      const emailInput = document.getElementById('recovery-email-input');
+      const err = document.getElementById('recovery-step2-error');
+      const email = (emailInput ? emailInput.value : '').trim();
+      if (!email) {
+        err.innerText = 'ERROR: EMAIL_REQUIRED';
+        return;
+      }
+      err.innerText = '';
+      next2.disabled = true;
+      next2.innerText = 'SENDING...';
+      try {
+        const res = await fetch(apiUrl('/api/locker/recover/send-code'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: recoveryLockerName, email })
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => '');
+          if (res.status === 401) {
+            err.innerText = 'ERROR: EMAIL_DOES_NOT_MATCH';
+          } else if (res.status === 404) {
+            err.innerText = 'ERROR: LOCKER_NOT_FOUND';
+          } else {
+            err.innerText = `ERROR: ${txt || 'SEND_FAILED'}`;
+          }
+          next2.disabled = false;
+          next2.innerText = 'SEND CODE';
+          return;
+        }
+        next2.disabled = false;
+        next2.innerText = 'SEND CODE';
+        showStep(3);
+        setTimeout(() => {
+          const firstDigit = document.querySelector('.code-digit[data-index="0"]');
+          if (firstDigit) firstDigit.focus();
+        }, 100);
+      } catch (e) {
+        err.innerText = 'ERROR: BACKEND_UNAVAILABLE';
+        next2.disabled = false;
+        next2.innerText = 'SEND CODE';
+      }
+    });
+  }
+
+  // --- Step 3: Verify code ---
+  // Auto-advance digit inputs
+  const codeDigits = document.querySelectorAll('.code-digit');
+  codeDigits.forEach((digit, idx) => {
+    digit.addEventListener('input', (e) => {
+      const val = e.target.value.replace(/[^0-9]/g, '');
+      e.target.value = val;
+      if (val && idx < codeDigits.length - 1) {
+        codeDigits[idx + 1].focus();
+      }
+    });
+    digit.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !digit.value && idx > 0) {
+        codeDigits[idx - 1].focus();
+      }
+    });
+    // Handle paste
+    digit.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '');
+      for (let i = 0; i < Math.min(pasted.length, codeDigits.length - idx); i++) {
+        codeDigits[idx + i].value = pasted[i];
+      }
+      const lastIdx = Math.min(idx + pasted.length, codeDigits.length) - 1;
+      codeDigits[lastIdx].focus();
+    });
+  });
+
+  const next3 = document.getElementById('recovery-next-3');
+  const back3 = document.getElementById('recovery-back-3');
+  if (back3) {
+    back3.addEventListener('click', () => showStep(2));
+  }
+  if (next3) {
+    next3.addEventListener('click', async () => {
+      const err = document.getElementById('recovery-step3-error');
+      let code = '';
+      codeDigits.forEach(d => { code += d.value; });
+      if (code.length !== 6) {
+        err.innerText = 'ERROR: ENTER_ALL_6_DIGITS';
+        return;
+      }
+      err.innerText = '';
+      next3.disabled = true;
+      next3.innerText = 'VERIFYING...';
+      try {
+        const res = await fetch(apiUrl('/api/locker/recover/verify-code'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: recoveryLockerName, code })
+        });
+        if (!res.ok) {
+          err.innerText = 'ERROR: INVALID_OR_EXPIRED_CODE';
+          next3.disabled = false;
+          next3.innerText = 'VERIFY CODE';
+          return;
+        }
+        const body = await res.json();
+        recoveryToken = body.token || '';
+        next3.disabled = false;
+        next3.innerText = 'VERIFY CODE';
+        showStep(4);
+        setTimeout(() => {
+          const newPwInput = document.getElementById('recovery-new-password');
+          if (newPwInput) newPwInput.focus();
+        }, 100);
+      } catch (e) {
+        err.innerText = 'ERROR: BACKEND_UNAVAILABLE';
+        next3.disabled = false;
+        next3.innerText = 'VERIFY CODE';
+      }
+    });
+  }
+
+  // --- Step 4: Reset password ---
+  const next4 = document.getElementById('recovery-next-4');
+  if (next4) {
+    next4.addEventListener('click', async () => {
+      const newPwInput = document.getElementById('recovery-new-password');
+      const confirmPwInput = document.getElementById('recovery-confirm-password');
+      const err = document.getElementById('recovery-step4-error');
+      const newPw = (newPwInput ? newPwInput.value : '').trim();
+      const confirmPw = (confirmPwInput ? confirmPwInput.value : '').trim();
+      if (!newPw || !confirmPw) {
+        err.innerText = 'ERROR: ALL_FIELDS_REQUIRED';
+        return;
+      }
+      if (newPw !== confirmPw) {
+        err.innerText = 'ERROR: PASSWORDS_DO_NOT_MATCH';
+        return;
+      }
+      if (newPw.length < 4) {
+        err.innerText = 'ERROR: PASSWORD_MIN_4_CHARACTERS';
+        return;
+      }
+      err.innerText = '';
+      next4.disabled = true;
+      next4.innerText = 'RESETTING...';
+      try {
+        const res = await fetch(apiUrl('/api/locker/recover/reset-password'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: recoveryToken, newPassword: newPw })
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => '');
+          err.innerText = `ERROR: ${txt || 'RESET_FAILED'}`;
+          next4.disabled = false;
+          next4.innerText = 'RESET PASSWORD';
+          return;
+        }
+        next4.disabled = false;
+        next4.innerText = 'RESET PASSWORD';
+        showStep(5);
+      } catch (e) {
+        err.innerText = 'ERROR: BACKEND_UNAVAILABLE';
+        next4.disabled = false;
+        next4.innerText = 'RESET PASSWORD';
+      }
+    });
+  }
+
+  // --- Step 5: Done ---
+  const doneBtn = document.getElementById('recovery-done');
+  if (doneBtn) {
+    doneBtn.addEventListener('click', closeRecoveryModal);
   }
 }
 

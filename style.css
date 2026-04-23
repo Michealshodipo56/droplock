@@ -3247,3 +3247,328 @@ body {
     font-size: 0.7rem;
   }
 }
+
+/* === SECURE ACCOUNT VIEW (Locker Page) === */
+
+.secure-account-view {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  text-align: center;
+  animation: fadeSlideUp 0.4s ease;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.secure-account-icon {
+  font-size: 3rem;
+  color: var(--cyan);
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
+}
+
+.secure-account-title {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: var(--text-main);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.secure-account-desc {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 32px;
+}
+
+.secure-account-card {
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 8px;
+  padding: 28px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: left;
+}
+
+.secure-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.secure-card-header i {
+  font-size: 1rem;
+}
+
+.secure-current-email {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+
+.secure-email-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.secure-email-address {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.secure-account-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.secure-save-btn {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: var(--cyan);
+  padding: 10px 24px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.secure-save-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+}
+
+.secure-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secure-email-status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  margin-top: 16px;
+  min-height: 1.2em;
+  letter-spacing: 0.5px;
+}
+
+.secure-email-status.success {
+  color: var(--cyan);
+}
+
+.secure-email-status.error {
+  color: #ff4a4a;
+}
+
+.secure-back-btn {
+  margin-top: 28px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+  padding: 10px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.secure-back-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* --- Security Tips Panel (Right Column) --- */
+
+.right-col-security {
+  padding: 16px 0;
+}
+
+.security-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.security-tip-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.tip-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 229, 255, 0.08);
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--cyan);
+  font-size: 0.75rem;
+}
+
+.tip-text strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-main);
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.tip-text p {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* === RECOVERY MULTI-STEP MODAL === */
+
+.recovery-step {
+  display: none;
+  animation: fadeSlideUp 0.35s ease;
+}
+
+.recovery-step.active {
+  display: block;
+}
+
+.recovery-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+  transform: scale(1.2);
+}
+
+.step-dot.done {
+  background: rgba(0, 229, 255, 0.3);
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+.recovery-error {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #ff4a4a;
+  min-height: 1.2em;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* OTP Code Digit Inputs */
+.recovery-code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.code-digit {
+  width: 48px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+  caret-color: var(--cyan);
+}
+
+.code-digit:focus {
+  border-color: var(--cyan);
+  background: rgba(0, 229, 255, 0.05);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.2);
+}
+
+/* Recovery Success */
+.recovery-success-icon {
+  font-size: 4rem;
+  color: var(--cyan);
+  margin-bottom: 20px;
+  text-align: center;
+  animation: successPulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 25px rgba(0, 229, 255, 0.5));
+}
+
+@keyframes successPulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+@media (max-width: 480px) {
+  .code-digit {
+    width: 40px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+
+  .recovery-code-inputs {
+    gap: 6px;
+  }
+
+  .secure-account-card {
+    padding: 20px 16px;
+  }
+
+  .secure-account-view {
+    padding: 24px 16px;
+  }
+}

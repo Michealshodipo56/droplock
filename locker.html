@@ -86,7 +86,7 @@
 
       <!-- Main Editor Area -->
       <main class="locker-main-content">
-        <div class="locker-main-header">
+        <div id="notes-view-header" class="locker-main-header">
           <div class="browser-tabs-wrapper">
             <div id="notes-tabs" class="browser-tabs">
             </div>
@@ -96,7 +96,7 @@
           </div>
         </div>
 
-        <div class="locker-editor-wrapper">
+        <div id="notes-view-editor" class="locker-editor-wrapper">
           <div class="editor-label">
             <div class="editor-toolbar">
               <button class="toolbar-btn" title="Bold"><i class="fas fa-bold"></i></button>
@@ -107,22 +107,97 @@
           </div>
           <textarea class="secure-textarea" placeholder="# Start writing..."></textarea>
         </div>
+
+        <!-- Secure Account View (hidden by default) -->
+        <div id="secure-account-view" class="secure-account-view" style="display: none;">
+          <div class="secure-account-icon">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <h2 class="secure-account-title">SECURE_ACCOUNT</h2>
+          <p class="secure-account-desc">
+            Link a recovery email to your locker. If you ever forget your password,
+            a verification code will be sent to this email so you can reset it.
+          </p>
+
+          <div class="secure-account-card">
+            <div class="secure-card-header">
+              <i class="fas fa-envelope"></i>
+              <span>RECOVERY EMAIL</span>
+            </div>
+            <div id="secure-current-email" class="secure-current-email">
+              <span class="secure-email-label">CURRENT:</span>
+              <span id="secure-email-value" class="secure-email-address">NOT SET</span>
+            </div>
+            <div class="input-group" style="margin-bottom: 20px;">
+              <label class="input-label" style="background: #0d0d0d;">GMAIL ADDRESS</label>
+              <input type="email" id="secure-email-input" class="terminal-input" placeholder="YOUR_EMAIL@GMAIL.COM">
+            </div>
+            <div class="secure-account-actions">
+              <button id="save-email-btn" class="secure-save-btn">
+                <i class="fas fa-check"></i> SAVE EMAIL
+              </button>
+            </div>
+            <div id="secure-email-status" class="secure-email-status"></div>
+          </div>
+
+          <button id="back-to-notes-btn" class="secure-back-btn">
+            <i class="fas fa-arrow-left"></i> BACK TO NOTES
+          </button>
+        </div>
       </main>
 
       <!-- Assets Sidebar -->
       <aside class="locker-right-column">
-        <div class="column-title">UPLOAD-YOUR-FILES</div>
-        
-        <div class="asset-list">
+        <!-- Normal file upload view -->
+        <div id="right-col-files">
+          <div class="column-title">UPLOAD-YOUR-FILES</div>
+          
+          <div class="asset-list">
+          </div>
+
+          <div class="asset-dropzone">
+            <div class="dropzone-icon">
+              <i class="fas fa-cloud-arrow-up fa-2xl"></i>
+            </div>
+            <div class="dropzone-text">DRAG & DROP FILES HERE</div>
+            <div class="dropzone-sub" style="margin-bottom: 20px;">MAXIMUM FILE SIZE: 50MB</div>
+            <button class="import-file-btn">IMPORT FILES</button>
+          </div>
         </div>
 
-        <div class="asset-dropzone">
-          <div class="dropzone-icon">
-            <i class="fas fa-cloud-arrow-up fa-2xl"></i>
+        <!-- Security info view (shown during secure account) -->
+        <div id="right-col-security" class="right-col-security" style="display: none;">
+          <div class="column-title">SECURITY_INFO</div>
+          <div class="security-tips">
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-lock"></i></div>
+              <div class="tip-text">
+                <strong>ENCRYPTED STORAGE</strong>
+                <p>Your email is stored securely on the server and is never exposed publicly.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-key"></i></div>
+              <div class="tip-text">
+                <strong>PASSWORD RESET</strong>
+                <p>A 6-digit verification code will be sent to your email when you request a recovery.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-clock"></i></div>
+              <div class="tip-text">
+                <strong>CODE EXPIRY</strong>
+                <p>Recovery codes expire after 10 minutes for maximum security.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-user-shield"></i></div>
+              <div class="tip-text">
+                <strong>IDENTITY CHECK</strong>
+                <p>During recovery, you must provide the exact email registered to this locker.</p>
+              </div>
+            </div>
           </div>
-          <div class="dropzone-text">DRAG & DROP FILES HERE</div>
-          <div class="dropzone-sub" style="margin-bottom: 20px;">MAXIMUM FILE SIZE: 50MB</div>
-          <button class="import-file-btn">IMPORT FILES</button>
         </div>
       </aside>
     </div>
@@ -915,7 +990,140 @@
           }
         });
       }
+      // --- Secure Account View ---
+      const secureAccountView = document.getElementById('secure-account-view');
+      const notesViewHeader = document.getElementById('notes-view-header');
+      const notesViewEditor = document.getElementById('notes-view-editor');
+      const rightColFiles = document.getElementById('right-col-files');
+      const rightColSecurity = document.getElementById('right-col-security');
+      const secureEmailInput = document.getElementById('secure-email-input');
+      const secureEmailValue = document.getElementById('secure-email-value');
+      const saveEmailBtn = document.getElementById('save-email-btn');
+      const backToNotesBtn = document.getElementById('back-to-notes-btn');
+      const secureEmailStatus = document.getElementById('secure-email-status');
+
+      const secureAccountLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('SECURE ACCOUNT'));
+
+      let secureAccountActive = false;
+
+      function enterSecureAccountMode() {
+        secureAccountActive = true;
+        // Hide notes UI
+        if (notesViewHeader) notesViewHeader.style.display = 'none';
+        if (notesViewEditor) notesViewEditor.style.display = 'none';
+        if (allFilesBoard) allFilesBoard.style.display = 'none';
+        // Show secure account view
+        if (secureAccountView) secureAccountView.style.display = 'flex';
+        // Swap right column
+        if (rightColFiles) rightColFiles.style.display = 'none';
+        if (rightColSecurity) rightColSecurity.style.display = 'block';
+        if (rightColumn) rightColumn.style.display = 'flex';
+        // Clear status
+        if (secureEmailStatus) { secureEmailStatus.innerText = ''; secureEmailStatus.className = 'secure-email-status'; }
+        // Load current email
+        loadCurrentEmail();
+      }
+
+      function exitSecureAccountMode() {
+        secureAccountActive = false;
+        // Restore notes UI
+        if (notesViewHeader) notesViewHeader.style.display = '';
+        if (notesViewEditor) notesViewEditor.style.display = '';
+        if (secureAccountView) secureAccountView.style.display = 'none';
+        // Restore right column
+        if (rightColFiles) rightColFiles.style.display = '';
+        if (rightColSecurity) rightColSecurity.style.display = 'none';
+        // Restore correct mode
+        applyMode();
+      }
+
+      async function loadCurrentEmail() {
+        try {
+          const res = await fetch(apiUrl('/api/locker/get-email'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const email = (data.email || '').trim();
+            if (secureEmailValue) {
+              secureEmailValue.innerText = email || 'NOT SET';
+              secureEmailValue.style.color = email ? 'var(--cyan)' : 'var(--text-dim)';
+            }
+            if (secureEmailInput && email) {
+              secureEmailInput.value = email;
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to load current email:', err);
+        }
+      }
+
+      if (secureAccountLink) {
+        secureAccountLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          enterSecureAccountMode();
+          // Close the dropdown
+          const dropdown = document.querySelector('.settings-dropdown');
+          const icon = document.querySelector('.settings-nav-item .dropdown-icon');
+          if (dropdown) dropdown.style.display = 'none';
+          if (icon) icon.style.transform = 'rotate(0deg)';
+        });
+      }
+
+      if (backToNotesBtn) {
+        backToNotesBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          exitSecureAccountMode();
+        });
+      }
+
+      if (saveEmailBtn) {
+        saveEmailBtn.addEventListener('click', async () => {
+          const email = (secureEmailInput.value || '').trim();
+          if (!email) {
+            secureEmailStatus.innerText = 'Please enter a valid email address.';
+            secureEmailStatus.className = 'secure-email-status error';
+            return;
+          }
+          // Basic email format check
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            secureEmailStatus.innerText = 'Invalid email format.';
+            secureEmailStatus.className = 'secure-email-status error';
+            return;
+          }
+          saveEmailBtn.disabled = true;
+          saveEmailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SAVING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/set-email'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: lockerName, password: lockerPassword, email }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            secureEmailStatus.innerText = 'Recovery email saved successfully!';
+            secureEmailStatus.className = 'secure-email-status success';
+            if (secureEmailValue) {
+              secureEmailValue.innerText = email;
+              secureEmailValue.style.color = 'var(--cyan)';
+            }
+          } catch (err) {
+            secureEmailStatus.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            secureEmailStatus.className = 'secure-email-status error';
+          } finally {
+            saveEmailBtn.disabled = false;
+            saveEmailBtn.innerHTML = '<i class="fas fa-check"></i> SAVE EMAIL';
+          }
+        });
+      }
+
     })();
   </script>
 </body>
 </html>
+

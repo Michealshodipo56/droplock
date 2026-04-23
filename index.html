@@ -133,21 +133,113 @@
     </footer>
   </div>
 
-  <!-- Recovery Modal -->
+  <!-- Recovery Modal (Multi-Step) -->
   <div id="recovery-modal" class="modal-overlay">
     <div class="modal-content vault-card">
       <button id="close-modal" class="close-btn">&times;</button>
-      <h2 class="vault-title modal-title">RECOVER_ACCOUNT</h2>
-      <p class="modal-text">Enter your locker identifier to begin the recovery protocol. You will need to answer your security questions to regain access.</p>
-      
-      <div class="input-group" style="margin-bottom: 32px;">
-        <label class="input-label">LOCKER NAME</label>
-        <input type="text" id="recovery-locker-name" class="terminal-input" placeholder="ENTER_IDENTIFIER">
+
+      <!-- Step 1: Enter Locker Name -->
+      <div id="recovery-step-1" class="recovery-step active">
+        <div class="recovery-step-indicator">
+          <span class="step-dot active"></span>
+          <span class="step-dot"></span>
+          <span class="step-dot"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="vault-title modal-title">RECOVER_ACCOUNT</h2>
+        <p class="modal-text">Enter your locker name to begin the recovery protocol.</p>
+        <div class="input-group" style="margin-bottom: 24px;">
+          <label class="input-label">LOCKER NAME</label>
+          <input type="text" id="recovery-locker-name" class="terminal-input" placeholder="ENTER_IDENTIFIER">
+        </div>
+        <div id="recovery-step1-error" class="recovery-error"></div>
+        <div class="modal-actions">
+          <button id="recovery-next-1" class="btn-access">NEXT</button>
+        </div>
       </div>
 
-      <div class="modal-actions">
-        <button id="submit-recovery" class="btn-access">RECOVER NOW</button>
+      <!-- Step 2: Enter Recovery Email -->
+      <div id="recovery-step-2" class="recovery-step">
+        <div class="recovery-step-indicator">
+          <span class="step-dot done"></span>
+          <span class="step-dot active"></span>
+          <span class="step-dot"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="vault-title modal-title">VERIFY_EMAIL</h2>
+        <p class="modal-text">Enter the recovery Gmail you set for this locker. A verification code will be sent to it.</p>
+        <div class="input-group" style="margin-bottom: 24px;">
+          <label class="input-label">RECOVERY GMAIL</label>
+          <input type="email" id="recovery-email-input" class="terminal-input" placeholder="YOUR_EMAIL@GMAIL.COM">
+        </div>
+        <div id="recovery-step2-error" class="recovery-error"></div>
+        <div class="modal-actions" style="gap: 12px;">
+          <button id="recovery-back-2" class="btn-access" style="opacity: 0.6;">BACK</button>
+          <button id="recovery-next-2" class="btn-access">SEND CODE</button>
+        </div>
       </div>
+
+      <!-- Step 3: Enter Verification Code -->
+      <div id="recovery-step-3" class="recovery-step">
+        <div class="recovery-step-indicator">
+          <span class="step-dot done"></span>
+          <span class="step-dot done"></span>
+          <span class="step-dot active"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="vault-title modal-title">ENTER_CODE</h2>
+        <p class="modal-text">A 6-digit verification code has been sent to your email. Enter it below.</p>
+        <div class="recovery-code-inputs">
+          <input type="text" maxlength="1" class="code-digit" data-index="0" inputmode="numeric">
+          <input type="text" maxlength="1" class="code-digit" data-index="1" inputmode="numeric">
+          <input type="text" maxlength="1" class="code-digit" data-index="2" inputmode="numeric">
+          <input type="text" maxlength="1" class="code-digit" data-index="3" inputmode="numeric">
+          <input type="text" maxlength="1" class="code-digit" data-index="4" inputmode="numeric">
+          <input type="text" maxlength="1" class="code-digit" data-index="5" inputmode="numeric">
+        </div>
+        <div id="recovery-step3-error" class="recovery-error"></div>
+        <div class="modal-actions" style="gap: 12px;">
+          <button id="recovery-back-3" class="btn-access" style="opacity: 0.6;">BACK</button>
+          <button id="recovery-next-3" class="btn-access">VERIFY CODE</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Set New Password -->
+      <div id="recovery-step-4" class="recovery-step">
+        <div class="recovery-step-indicator">
+          <span class="step-dot done"></span>
+          <span class="step-dot done"></span>
+          <span class="step-dot done"></span>
+          <span class="step-dot active"></span>
+        </div>
+        <h2 class="vault-title modal-title">NEW_PASSWORD</h2>
+        <p class="modal-text">Set a new password for your locker. Make it strong and memorable.</p>
+        <div class="input-group" style="margin-bottom: 16px;">
+          <label class="input-label">NEW PASSWORD</label>
+          <input type="password" id="recovery-new-password" class="terminal-input" placeholder="ENTER_NEW_PASSWORD">
+        </div>
+        <div class="input-group" style="margin-bottom: 24px;">
+          <label class="input-label">CONFIRM PASSWORD</label>
+          <input type="password" id="recovery-confirm-password" class="terminal-input" placeholder="CONFIRM_PASSWORD">
+        </div>
+        <div id="recovery-step4-error" class="recovery-error"></div>
+        <div class="modal-actions">
+          <button id="recovery-next-4" class="btn-access">RESET PASSWORD</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Success -->
+      <div id="recovery-step-5" class="recovery-step">
+        <div class="recovery-success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="vault-title modal-title" style="color: var(--cyan);">PASSWORD_RESET</h2>
+        <p class="modal-text">Your password has been successfully reset. You can now access your locker with the new password.</p>
+        <div class="modal-actions">
+          <button id="recovery-done" class="btn-access">BACK TO VAULT</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
