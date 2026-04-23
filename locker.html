@@ -155,6 +155,25 @@
     </div>
   </div>
 
+  <!-- Change Password Modal -->
+  <div id="change-password-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#0d0d0d; border:1px solid rgba(0,229,255,0.25); border-radius:8px; padding:36px 32px; max-width:420px; width:90%; font-family:var(--font-mono); text-align:center;">
+      <div style="font-size:2rem; color:var(--cyan); margin-bottom:16px;"><i class="fas fa-key"></i></div>
+      <h2 style="color:#fff; font-size:1rem; letter-spacing:2px; margin-bottom:24px;">CHANGE PASSWORD</h2>
+      <input id="cp-old-password" type="password" placeholder="Enter old password" autocomplete="current-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:14px; box-sizing:border-box;">
+      <input id="cp-new-password" type="password" placeholder="Enter new password" autocomplete="new-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:14px; box-sizing:border-box;">
+      <input id="cp-confirm-password" type="password" placeholder="Confirm new password" autocomplete="new-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:20px; box-sizing:border-box;">
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="cp-modal-cancel" style="flex:1; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#aaa; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">CANCEL</button>
+        <button id="cp-modal-confirm" style="flex:1; padding:10px; background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); border-radius:4px; color:var(--cyan); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">SAVE</button>
+      </div>
+      <p id="cp-modal-error" style="font-size:0.68rem; margin-top:14px; min-height:1em;"></p>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script>
     (async function initLockerPage() {
@@ -805,6 +824,97 @@
       deleteModal.addEventListener('click', (e) => {
         if (e.target === deleteModal) deleteModal.style.display = 'none';
       });
+
+      // --- Change Password Modal ---
+      const cpModal = document.getElementById('change-password-modal');
+      const cpOldInput = document.getElementById('cp-old-password');
+      const cpNewInput = document.getElementById('cp-new-password');
+      const cpConfirmInput = document.getElementById('cp-confirm-password');
+      const cpCancel = document.getElementById('cp-modal-cancel');
+      const cpConfirm = document.getElementById('cp-modal-confirm');
+      const cpError = document.getElementById('cp-modal-error');
+
+      const changePasswordLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('CHANGE PASSWORD'));
+
+      function closeCpModal() {
+        cpModal.style.display = 'none';
+        cpOldInput.value = '';
+        cpNewInput.value = '';
+        cpConfirmInput.value = '';
+        cpError.innerText = '';
+        cpError.style.color = '#ff4a4a';
+      }
+
+      if (changePasswordLink) {
+        changePasswordLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          cpError.innerText = '';
+          cpOldInput.value = '';
+          cpNewInput.value = '';
+          cpConfirmInput.value = '';
+          cpModal.style.display = 'flex';
+          setTimeout(() => cpOldInput.focus(), 50);
+        });
+      }
+
+      if (cpCancel) cpCancel.addEventListener('click', closeCpModal);
+
+      cpModal.addEventListener('click', (e) => {
+        if (e.target === cpModal) closeCpModal();
+      });
+
+      if (cpConfirm) {
+        cpConfirm.addEventListener('click', async () => {
+          cpError.style.color = '#ff4a4a';
+          cpError.innerText = '';
+          const oldPw = (cpOldInput.value || '').trim();
+          const newPw = (cpNewInput.value || '').trim();
+          const confirmPw = (cpConfirmInput.value || '').trim();
+          if (!oldPw || !newPw || !confirmPw) {
+            cpError.innerText = 'All fields are required.';
+            return;
+          }
+          if (newPw !== confirmPw) {
+            cpError.innerText = 'New passwords do not match.';
+            return;
+          }
+          if (newPw.length < 4) {
+            cpError.innerText = 'New password must be at least 4 characters.';
+            return;
+          }
+          cpConfirm.disabled = true;
+          cpConfirm.innerText = 'SAVING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/change-password'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: lockerName,
+                oldPassword: oldPw,
+                newPassword: newPw,
+              }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            // Update cached password so future saves still work
+            lockerPassword = newPw;
+            const storageKey = `droplock.lockerPassword:${lockerName}`;
+            sessionStorage.setItem(storageKey, newPw);
+            cpError.style.color = 'var(--cyan)';
+            cpError.innerText = 'Password changed successfully!';
+            cpConfirm.innerText = 'SAVE';
+            cpConfirm.disabled = false;
+            setTimeout(closeCpModal, 1800);
+          } catch (err) {
+            cpError.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            cpConfirm.disabled = false;
+            cpConfirm.innerText = 'SAVE';
+          }
+        });
+      }
     })();
   </script>
 </body>
