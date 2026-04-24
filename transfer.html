@@ -37,11 +37,11 @@
         </div>
         
         <nav class="protocol-nav">
-          <a href="#" class="protocol-item active">
+          <a href="#" id="proto-direct" class="protocol-item active">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
             DIRECT
           </a>
-          <a href="#" class="protocol-item">
+          <a href="#" id="proto-encrypted" class="protocol-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             ENCRYPTED
           </a>
@@ -68,106 +68,172 @@
       </aside>
 
       <main class="transfer-main">
-        <!-- Step Progress Indicator -->
-        <div class="step-indicator">
-          <div class="step step-active" id="step-1">
-            <div class="step-box">01</div>
-            <div class="step-label">UPLOAD</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step" id="step-2">
-            <div class="step-box">02</div>
-            <div class="step-label">SCAN</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step" id="step-3">
-            <div class="step-box">03</div>
-            <div class="step-label">TRANSFER</div>
-          </div>
-        </div>
-
-        <!-- Upload Sector -->
-        <input type="file" id="file-input" multiple style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
-        <div id="drop-zone" class="transfer-panel upload-panel">
-          <div class="upload-zone">
-            <div class="upload-icons">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        <!-- DIRECT TRANSFER VIEW -->
+        <div id="direct-transfer-view">
+          <!-- Step Progress Indicator -->
+          <div class="step-indicator">
+            <div class="step step-active" id="step-1">
+              <div class="step-box">01</div>
+              <div class="step-label">UPLOAD</div>
             </div>
-            <h2 class="upload-title">DRAG_AND_DROP_FILES</h2>
-            <p class="upload-subtitle">MAXIMUM UPLOAD CAPACITY: 4.0 GB PER SESSION</p>
-            <button id="upload-btn" class="btn-outline">UPLOAD_FILES</button>
-            <div id="upload-progress-wrap" class="upload-progress-wrap is-hidden">
-              <div class="progress-container x-large">
-                <div id="upload-progress-bar" class="progress-bar" style="width: 0%;"></div>
+            <div class="step-connector"></div>
+            <div class="step" id="step-2">
+              <div class="step-box">02</div>
+              <div class="step-label">SCAN</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step" id="step-3">
+              <div class="step-box">03</div>
+              <div class="step-label">TRANSFER</div>
+            </div>
+          </div>
+
+          <!-- Upload Sector -->
+          <div id="drop-zone" class="transfer-panel upload-panel">
+            <div class="upload-zone">
+              <div class="upload-icons">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
               </div>
-              <div id="upload-progress-text" class="progress-desc">PREPARING_FILES... 0%</div>
+              <h2 class="upload-title">DRAG_AND_DROP_FILES</h2>
+              <p class="upload-subtitle">MAXIMUM UPLOAD CAPACITY: 4.0 GB PER SESSION</p>
+              <button id="upload-btn" class="btn-outline">UPLOAD_FILES</button>
+              <div id="upload-progress-wrap" class="upload-progress-wrap is-hidden">
+                <div class="progress-container x-large">
+                  <div id="upload-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div id="upload-progress-text" class="progress-desc">PREPARING_FILES... 0%</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div id="staged-files-container" class="staged-files-container"></div>
+          <div id="staged-files-container" class="staged-files-container"></div>
 
-        <div id="transfer-target-panel" class="transfer-target-panel is-hidden">
-          <div class="transfer-target-box">
-            <div class="target-info">
-              <span class="target-label">TARGET_DEVICE</span>
-              <span id="selected-device-name" class="target-device-name">UNSET</span>
+          <div id="transfer-target-panel" class="transfer-target-panel is-hidden">
+            <div class="transfer-target-box">
+              <div class="target-info">
+                <span class="target-label">TARGET_DEVICE</span>
+                <span id="selected-device-name" class="target-device-name">UNSET</span>
+              </div>
+              <button id="unselect-device-btn" class="unselect-device-btn" title="Unselect device">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
-            <button id="unselect-device-btn" class="unselect-device-btn" title="Unselect device">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <button id="transfer-start-btn" class="btn-outline" type="button">TRANSFER</button>
+          </div>
+
+          <div id="transfer-progress-wrap" class="transfer-progress-wrap is-hidden">
+            <div class="progress-container x-large">
+              <div id="transfer-progress-bar" class="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div id="transfer-progress-text" class="progress-desc">TRANSFER_PENDING</div>
+          </div>
+
+          <button id="transfer-cancel-btn" class="btn-outline-minimal transfer-cancel-btn is-hidden" type="button">CANCEL</button>
+
+          <div id="transfer-result" class="transfer-result is-hidden">
+            <div class="result-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div id="transfer-result-text" class="result-text">TRANSFER_COMPLETED_SUCCESSFULLY</div>
+          </div>
+
+          <section class="incoming-transfers-panel">
+            <div class="incoming-header">
+              <div class="target-label">INCOMING_TRANSFERS</div>
+              <button id="cancel-incoming-btn" class="btn-outline-minimal" style="font-size: 0.7rem; padding: 4px 10px;">CANCEL</button>
+            </div>
+            <div id="incoming-transfers-empty" class="incoming-empty">NO_PENDING_TRANSFERS</div>
+            <div id="incoming-transfers" class="incoming-transfers"></div>
+          </section>
+
+          <!-- Animated SVG Scan Button -->
+          <div id="scan-btn-wrapper" class="scan-btn-wrapper">
+            <button id="scan-btn" class="scan-btn" aria-label="Scan for devices">
+              <svg class="scan-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer ring - rotate clockwise -->
+                <g class="scan-ring scan-ring-outer">
+                  <circle cx="100" cy="100" r="85" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="40 26.75"/>
+                </g>
+                <!-- Middle ring - rotate counter-clockwise -->
+                <g class="scan-ring scan-ring-middle">
+                  <circle cx="100" cy="100" r="65" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="30 21.05"/>
+                </g>
+                <!-- Inner ring - rotate clockwise (faster) -->
+                <g class="scan-ring scan-ring-inner">
+                  <circle cx="100" cy="100" r="45" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="20 15.34"/>
+                </g>
+                <!-- Center SCAN text -->
+                <text x="100" y="106" text-anchor="middle" class="scan-text">SCAN</text>
+              </svg>
             </button>
           </div>
-          <button id="transfer-start-btn" class="btn-outline" type="button">TRANSFER</button>
         </div>
 
-        <div id="transfer-progress-wrap" class="transfer-progress-wrap is-hidden">
-          <div class="progress-container x-large">
-            <div id="transfer-progress-bar" class="progress-bar" style="width: 0%;"></div>
+        <!-- ENCRYPTED TRANSFER VIEW -->
+        <div id="encrypted-transfer-view" class="is-hidden" style="display: none;">
+          <div class="encrypted-protocol-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            ENCRYPTED TRANSFER
           </div>
-          <div id="transfer-progress-text" class="progress-desc">TRANSFER_PENDING</div>
-        </div>
+          <p class="upload-subtitle" style="margin-bottom: 24px;">Securely transfer files using a generated, one-time access code.</p>
 
-        <button id="transfer-cancel-btn" class="btn-outline-minimal transfer-cancel-btn is-hidden" type="button">CANCEL</button>
-
-        <div id="transfer-result" class="transfer-result is-hidden">
-          <div class="result-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <!-- Upload Sector for Encrypted -->
+          <div id="enc-drop-zone" class="transfer-panel upload-panel" style="min-height: 160px; margin-bottom: 24px;">
+            <div class="upload-zone">
+              <h2 class="upload-title" style="font-size: 1.2rem;">STAGE_FILES_FOR_ENCRYPTION</h2>
+              <button id="enc-upload-btn" class="btn-outline" style="margin-top: 12px;">SELECT_FILES</button>
+            </div>
           </div>
-          <div id="transfer-result-text" class="result-text">TRANSFER_COMPLETED_SUCCESSFULLY</div>
-        </div>
 
-        <section class="incoming-transfers-panel">
-          <div class="incoming-header">
-            <div class="target-label">INCOMING_TRANSFERS</div>
-            <button id="cancel-incoming-btn" class="btn-outline-minimal" style="font-size: 0.7rem; padding: 4px 10px;">CANCEL</button>
+          <div id="enc-staged-container" class="staged-files-container"></div>
+
+          <div class="encrypted-boxes">
+            <!-- Generate Code Box (Sender) -->
+            <div class="transfer-panel encrypted-box sender-box">
+              <div class="enc-box-header">
+                <span class="enc-label">SEND FILES</span>
+              </div>
+              <p class="enc-desc">Generate an 8-character code to share securely with the receiver.</p>
+              
+              <button id="enc-generate-btn" class="btn-outline enc-action-btn" type="button" disabled>GENERATE CODE</button>
+              
+              <div id="enc-code-display-wrap" class="enc-code-display-wrap is-hidden">
+                <div class="enc-code-box">
+                  <span id="enc-generated-code" class="enc-code-value">--------</span>
+                  <button id="enc-copy-btn" class="enc-copy-btn" title="Copy to clipboard">
+                    <i class="far fa-copy"></i>
+                  </button>
+                </div>
+                <div class="enc-code-info">Code expires in 2 hours</div>
+              </div>
+            </div>
+
+            <!-- Receive Code Box (Receiver) -->
+            <div class="transfer-panel encrypted-box receiver-box">
+              <div class="enc-box-header">
+                <span class="enc-label">RECEIVE FILES</span>
+              </div>
+              <p class="enc-desc">Enter an 8-character access code to securely decrypt and download files.</p>
+              
+              <div class="enc-input-wrap">
+                <input type="text" id="enc-receive-input" class="enc-code-input" placeholder="ENTER CODE" maxlength="8" style="text-transform: uppercase;">
+                <button id="enc-receive-btn" class="btn-outline enc-action-btn">RETRIEVE</button>
+              </div>
+              <div id="enc-receive-error" class="recovery-error" style="margin-top: 8px;"></div>
+            </div>
           </div>
-          <div id="incoming-transfers-empty" class="incoming-empty">NO_PENDING_TRANSFERS</div>
-          <div id="incoming-transfers" class="incoming-transfers"></div>
-        </section>
 
-        <!-- Animated SVG Scan Button -->
-        <div id="scan-btn-wrapper" class="scan-btn-wrapper">
-          <button id="scan-btn" class="scan-btn" aria-label="Scan for devices">
-            <svg class="scan-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              <!-- Outer ring - rotate clockwise -->
-              <g class="scan-ring scan-ring-outer">
-                <circle cx="100" cy="100" r="85" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="40 26.75"/>
-              </g>
-              <!-- Middle ring - rotate counter-clockwise -->
-              <g class="scan-ring scan-ring-middle">
-                <circle cx="100" cy="100" r="65" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="30 21.05"/>
-              </g>
-              <!-- Inner ring - rotate clockwise (faster) -->
-              <g class="scan-ring scan-ring-inner">
-                <circle cx="100" cy="100" r="45" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="20 15.34"/>
-              </g>
-              <!-- Center SCAN text -->
-              <text x="100" y="106" text-anchor="middle" class="scan-text">SCAN</text>
-            </svg>
-          </button>
+          <!-- Encrypted Incoming List -->
+          <div id="enc-incoming-container" class="enc-incoming-container is-hidden">
+            <h3 class="target-label" style="margin-bottom: 12px; color: var(--cyan);">DECRYPTED_FILES</h3>
+            <div id="enc-incoming-list" class="incoming-transfers"></div>
+          </div>
         </div>
+
+        <input type="file" id="file-input" multiple style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+        <input type="file" id="enc-file-input" multiple style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
 
       </main>
 

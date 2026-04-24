@@ -1018,7 +1018,31 @@ const foundDevicesList = document.getElementById('found-devices-list');
 const incomingTransfersEl = document.getElementById('incoming-transfers');
 const incomingTransfersEmptyEl = document.getElementById('incoming-transfers-empty');
 const scanStatusTextEl = document.getElementById('scan-status-text');
+
+// --- Encrypted Transfer Elements ---
+const protoDirect = document.getElementById('proto-direct');
+const protoEncrypted = document.getElementById('proto-encrypted');
+const directTransferView = document.getElementById('direct-transfer-view');
+const encryptedTransferView = document.getElementById('encrypted-transfer-view');
+
+const encUploadBtn = document.getElementById('enc-upload-btn');
+const encFileInput = document.getElementById('enc-file-input');
+const encDropZone = document.getElementById('enc-drop-zone');
+const encStagedContainer = document.getElementById('enc-staged-container');
+
+const encGenerateBtn = document.getElementById('enc-generate-btn');
+const encCodeDisplayWrap = document.getElementById('enc-code-display-wrap');
+const encGeneratedCode = document.getElementById('enc-generated-code');
+const encCopyBtn = document.getElementById('enc-copy-btn');
+
+const encReceiveInput = document.getElementById('enc-receive-input');
+const encReceiveBtn = document.getElementById('enc-receive-btn');
+const encReceiveError = document.getElementById('enc-receive-error');
+const encIncomingContainer = document.getElementById('enc-incoming-container');
+const encIncomingList = document.getElementById('enc-incoming-list');
+
 let stagedFiles = [];
+let encStagedFiles = [];
 let selectedDevice = null;
 let transferTimer = null;
 let transferPercent = 0;
@@ -1181,18 +1205,265 @@ async function refreshInbox() {
 function startInboxLoop() {
   if (!incomingTransfersEl) return;
 
-  const cancelBtn = document.getElementById('cancel-incoming-btn');
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => {
-      // Clear the UI without resetting the fingerprint
-      // This prevents the next 6-second poll from re-rendering the same canceled files
-      renderIncomingTransfers([]);
+  const cancelIncomingBtn = document.getElementById('cancel-incoming-btn');
+  if (cancelIncomingBtn) {
+    cancelIncomingBtn.addEventListener('click', () => {
+      // Opt out of incoming transfers for UX (doesn't delete from server)
+      incomingTransfersEmptyEl.classList.remove('is-hidden');
+      incomingTransfersEl.innerHTML = '';
+    });
+  }
+
+  // --- Initialize Protocol Switching ---
+  setupProtocolSwitching();
+
+  // --- Initialize Encrypted Transfer Upload ---
+  setupEncryptedUpload();
+
+  // --- Initialize Encrypted Transfer Generate Code ---
+  if (encGenerateBtn) {
+    encGenerateBtn.addEventListener('click', generateEncryptedCode);
+  }
+  if (encCopyBtn) {
+    encCopyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(encGeneratedCode.innerText).then(() => {
+        encCopyBtn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => encCopyBtn.innerHTML = '<i class="far fa-copy"></i>', 2000);
+      });
+    });
+  }
+
+  // --- Initialize Encrypted Transfer Retrieve ---
+  if (encReceiveBtn) {
+    encReceiveBtn.addEventListener('click', retrieveEncryptedFiles);
+  }
+  if (encReceiveInput) {
+    encReceiveInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') retrieveEncryptedFiles();
     });
   }
 
   refreshInbox();
   if (inboxPollTimer) clearInterval(inboxPollTimer);
   inboxPollTimer = setInterval(refreshInbox, 6000);
+}
+
+// ============================================
+// ENCRYPTED TRANSFER LOGIC
+// ============================================
+
+function setupProtocolSwitching() {
+  if (!protoDirect || !protoEncrypted) return;
+
+  protoDirect.addEventListener('click', (e) => {
+    e.preventDefault();
+    protoDirect.classList.add('active');
+    protoEncrypted.classList.remove('active');
+    directTransferView.style.display = 'block';
+    directTransferView.classList.remove('is-hidden');
+    encryptedTransferView.style.display = 'none';
+    encryptedTransferView.classList.add('is-hidden');
+  });
+
+  protoEncrypted.addEventListener('click', (e) => {
+    e.preventDefault();
+    protoEncrypted.classList.add('active');
+    protoDirect.classList.remove('active');
+    encryptedTransferView.style.display = 'block';
+    encryptedTransferView.classList.remove('is-hidden');
+    directTransferView.style.display = 'none';
+    directTransferView.classList.add('is-hidden');
+  });
+}
+
+function setupEncryptedUpload() {
+  if (!encDropZone || !encFileInput || !encUploadBtn) return;
+
+  encUploadBtn.addEventListener('click', () => encFileInput.click());
+
+  encFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleEncryptedFiles(Array.from(e.target.files));
+  });
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+    encDropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(ev => {
+    encDropZone.addEventListener(ev, () => encDropZone.classList.add('drag-over'), false);
+  });
+
+  ['dragleave', 'drop'].forEach(ev => {
+    encDropZone.addEventListener(ev, () => encDropZone.classList.remove('drag-over'), false);
+  });
+
+  encDropZone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files.length > 0) handleEncryptedFiles(Array.from(e.dataTransfer.files));
+  });
+}
+
+function handleEncryptedFiles(files) {
+  let validFiles = Array.from(files).slice(0, 10 - encStagedFiles.length); // Max 10
+  if (validFiles.length === 0) return;
+
+  validFiles.forEach(file => {
+    const isDup = encStagedFiles.some(f => f.name === file.name && f.size === file.size);
+    if (!isDup) encStagedFiles.push(file);
+  });
+
+  renderEncryptedStagedFiles();
+  
+  if (encStagedFiles.length > 0) {
+    if (encGenerateBtn) {
+      encGenerateBtn.disabled = false;
+      encGenerateBtn.innerText = 'GENERATE CODE & STAGE FILES';
+      encCodeDisplayWrap.classList.add('is-hidden');
+    }
+  }
+}
+
+function renderEncryptedStagedFiles() {
+  if (!encStagedContainer) return;
+  encStagedContainer.innerHTML = '';
+  
+  encStagedFiles.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'staged-file-item';
+    item.innerHTML = `
+      <div class="staged-file-info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>
+          <div class="staged-file-name">${file.name}</div>
+          <div class="staged-file-size">${formatBytes(file.size)}</div>
+        </span>
+      </div>
+      <button class="staged-file-remove" data-index="${index}" title="Remove file">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    `;
+
+    item.querySelector('.staged-file-remove').addEventListener('click', (event) => {
+      const idx = parseInt(event.currentTarget.getAttribute('data-index'));
+      encStagedFiles.splice(idx, 1);
+      renderEncryptedStagedFiles();
+      if (encStagedFiles.length === 0) {
+        encGenerateBtn.disabled = true;
+        encGenerateBtn.innerText = 'GENERATE CODE';
+        encCodeDisplayWrap.classList.add('is-hidden');
+      }
+    });
+
+    encStagedContainer.appendChild(item);
+  });
+}
+
+async function generateEncryptedCode() {
+  if (encStagedFiles.length === 0 || !mySessionId) return;
+
+  encGenerateBtn.disabled = true;
+  encGenerateBtn.innerText = 'GENERATING CODE...';
+
+  const formData = new FormData();
+  formData.append('senderSession', mySessionId);
+  encStagedFiles.forEach(file => formData.append('files', file));
+
+  try {
+    const res = await fetch(apiUrl(`/api/transfers/encrypted/upload?sessionId=${encodeURIComponent(mySessionId)}`), {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!res.ok) throw new Error(`Upload failed: ${await res.text()}`);
+
+    const result = await res.json();
+    
+    encGeneratedCode.innerText = result.code;
+    encGenerateBtn.classList.add('is-hidden');
+    encCodeDisplayWrap.classList.remove('is-hidden');
+
+    // Make inputs read-only essentially
+    encUploadBtn.disabled = true;
+    encStagedFiles = [];
+    document.querySelectorAll('#enc-staged-container .staged-file-remove').forEach(btn => btn.style.display = 'none');
+    
+  } catch (error) {
+    console.error('Error generating encrypted code:', error);
+    encGenerateBtn.disabled = false;
+    encGenerateBtn.innerText = 'ERROR (TRY AGAIN)';
+  }
+}
+
+async function retrieveEncryptedFiles() {
+  if (!encReceiveInput || encReceiveInput.value.trim().length !== 8) {
+    encReceiveError.innerText = 'PLEASE ENTER A VALID 8-CHARACTER CODE.';
+    return;
+  }
+  
+  encReceiveError.innerText = '';
+  encReceiveBtn.disabled = true;
+  encReceiveBtn.innerText = 'VERIFYING...';
+  
+  const code = encReceiveInput.value.trim().toUpperCase();
+
+  try {
+    const res = await fetch(apiUrl(`/api/transfers/encrypted/check?code=${encodeURIComponent(code)}`));
+    
+    if (!res.ok) {
+      encReceiveError.innerText = 'INVALID OR EXPIRED CODE.';
+      encReceiveBtn.disabled = false;
+      encReceiveBtn.innerText = 'RETRIEVE';
+      return;
+    }
+
+    const data = await res.json();
+    
+    if (data.senderId === mySessionId) {
+       encReceiveError.innerText = 'YOU CANNOT RETRIEVE YOUR OWN FILES.';
+       encReceiveBtn.disabled = false;
+       encReceiveBtn.innerText = 'RETRIEVE';
+       return;
+    }
+
+    encReceiveBtn.innerText = 'DECRYPTED!';
+    encReceiveBtn.style.color = 'var(--cyan)';
+    encReceiveBtn.style.borderColor = 'var(--cyan)';
+    encReceiveInput.disabled = true;
+    
+    renderEncryptedIncomingList(code, data.files);
+
+  } catch (err) {
+    console.error('Error retrieving encrypted transfer:', err);
+    encReceiveError.innerText = 'CONNECTION ERROR.';
+    encReceiveBtn.disabled = false;
+    encReceiveBtn.innerText = 'RETRIEVE';
+  }
+}
+
+function renderEncryptedIncomingList(code, files) {
+  encIncomingContainer.classList.remove('is-hidden');
+  encIncomingList.innerHTML = '';
+  
+  files.forEach(file => {
+    const fileEl = document.createElement('div');
+    fileEl.className = 'incoming-file';
+    fileEl.innerHTML = `
+      <div class="incoming-file-name">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        ${file.name} <span style="opacity:0.5; margin-left:8px;">[${formatBytes(file.size)}]</span>
+      </div>
+      <button class="incoming-file-download btn-enc-dl" data-code="${code}" data-fileid="${file.id}">DOWNLOAD</button>
+    `;
+    encIncomingList.appendChild(fileEl);
+  });
+  
+  document.querySelectorAll('.btn-enc-dl').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const fetchCode = e.target.getAttribute('data-code');
+      const fetchFileId = e.target.getAttribute('data-fileid');
+      const dlUrl = apiUrl(`/api/transfers/encrypted/download?code=${encodeURIComponent(fetchCode)}&fileId=${encodeURIComponent(fetchFileId)}`);
+      window.open(dlUrl, '_blank');
+    });
+  });
 }
 
 function showScanButtonIfReady() {
