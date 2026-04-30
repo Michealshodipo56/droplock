@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropLock - Secure Vault Session</title>
+  <link rel="icon" type="image/png" href="images/droplock-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    (function () {
+      const qp = new URLSearchParams(window.location.search);
+      const override = (qp.get('api') || localStorage.getItem('droplock.apiBaseUrl') || '').trim();
+      if (override) {
+        window.__DROPLOCK_API_BASE_URL = override;
+        return;
+      }
+      // Default backend (override with ?api=... or localStorage key droplock.apiBaseUrl)
+      window.__DROPLOCK_API_BASE_URL =
+        window.__DROPLOCK_API_BASE_URL || 'https://droplock-backend-vesm.onrender.com';
+    })();
+  </script>
+</head>
+<body class="locker-body">
+  <div class="layout-wrapper locker-layout-wrapper">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="logo">
+        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
+        </a>
+      </div>
+     
+      <div class="nav-icons" style="gap: 20px; align-items: center;">
+        <button id="save-locker-btn" class="locker-header-badge" style="cursor:pointer; border:none;">
+          <i class="fas fa-save"></i>
+          <span>SAVE</span>
+        </button>
+        <button id="reload-locker-btn" class="locker-header-badge" style="cursor:pointer; border:none;">
+          <i class="fas fa-sync-alt"></i>
+          <span>RELOAD</span>
+        </button>
+
+        <a href="index.html" class="logout-link" title="Terminate Session">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="locker-container">
+      <!-- Sidebar -->
+      <aside class="transfer-sidebar locker-sidebar">
+        <div class="sidebar-header" style="border-bottom: none; padding-bottom: 0px;">
+          <h2 id="vault-id-display" class="sidebar-title">NAME</h2>
+        </div>
+
+        <nav class="protocol-nav">
+          <a href="#" class="protocol-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            NOTES
+          </a>
+          <a href="#" class="protocol-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            FILES
+          </a>
+          <a href="#" class="protocol-item settings-nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
+            SETTINGS
+            <i class="fas fa-chevron-down dropdown-icon" style="margin-left: auto; font-size: 0.8rem; transition: transform 0.2s;"></i>
+          </a>
+          <div class="settings-dropdown" style="display: none; flex-direction: column; padding: 4px 0; background: rgba(0, 0, 0, 0.15);">
+            <a href="#" class="dropdown-item"><i class="fas fa-shield-halved icon-fixed"></i> SECURE ACCOUNT</a>
+            <a href="#" class="dropdown-item"><i class="fas fa-key icon-fixed"></i> CHANGE PASSWORD</a>
+            <a href="#" class="dropdown-item" style="color: #ff4a4a;"><i class="fas fa-trash-alt icon-fixed"></i> DELETE ACCOUNT</a>
+          </div>
+        </nav>
+
+
+      </aside>
+
+      <!-- Main Editor Area -->
+      <main class="locker-main-content">
+        <div id="notes-view-header" class="locker-main-header">
+          <div class="browser-tabs-wrapper">
+            <div id="notes-tabs" class="browser-tabs">
+            </div>
+            <button id="add-note-btn" class="browser-add-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="notes-view-editor" class="locker-editor-wrapper">
+          <div class="editor-label">
+            <div class="editor-toolbar">
+              <button type="button" class="toolbar-btn" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
+              <button type="button" class="toolbar-btn" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
+              <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+              <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="H2" title="Heading"><i class="fas fa-heading"></i></button>
+            </div>
+          </div>
+          <textarea class="secure-textarea" placeholder="# Start writing..."></textarea>
+        </div>
+
+        <!-- Secure Account View (hidden by default) -->
+        <div id="secure-account-view" class="secure-account-view" style="display: none;">
+          <div class="secure-account-icon">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <h2 class="secure-account-title">SECURE_ACCOUNT</h2>
+          <p class="secure-account-desc">
+            Link a recovery email to your locker. If you ever forget your password,
+            a verification code will be sent to this email so you can reset it.
+          </p>
+
+          <div class="secure-account-card">
+            <div class="secure-card-header">
+              <i class="fas fa-envelope"></i>
+              <span>RECOVERY EMAIL</span>
+            </div>
+            <div id="secure-current-email" class="secure-current-email">
+              <span class="secure-email-label">CURRENT:</span>
+              <span id="secure-email-value" class="secure-email-address">NOT SET</span>
+            </div>
+            <div class="input-group" style="margin-bottom: 20px;">
+              <label class="input-label" style="background: #0d0d0d;">GMAIL ADDRESS</label>
+              <input type="email" id="secure-email-input" class="terminal-input" placeholder="YOUR_EMAIL@GMAIL.COM">
+            </div>
+            <div class="secure-account-actions">
+              <button id="save-email-btn" class="secure-save-btn">
+                <i class="fas fa-check"></i> SAVE EMAIL
+              </button>
+            </div>
+            <div id="secure-email-status" class="secure-email-status"></div>
+          </div>
+
+          <button id="back-to-notes-btn" class="secure-back-btn">
+            <i class="fas fa-arrow-left"></i> BACK TO NOTES
+          </button>
+        </div>
+      </main>
+
+      <!-- Assets Sidebar -->
+      <aside class="locker-right-column">
+        <!-- Normal file upload view -->
+        <div id="right-col-files">
+          <div class="column-title">UPLOAD-YOUR-FILES</div>
+          
+          <div class="asset-list">
+          </div>
+
+          <div class="asset-dropzone">
+            <div class="dropzone-icon">
+              <i class="fas fa-cloud-arrow-up fa-2xl"></i>
+            </div>
+            <div class="dropzone-text">DRAG & DROP FILES HERE</div>
+            <div class="dropzone-sub" style="margin-bottom: 20px;">MAXIMUM FILE SIZE: 50MB</div>
+            <button class="import-file-btn">IMPORT FILES</button>
+          </div>
+        </div>
+
+        <!-- Security info view (shown during secure account) -->
+        <div id="right-col-security" class="right-col-security" style="display: none;">
+          <div class="column-title">SECURITY_INFO</div>
+          <div class="security-tips">
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-lock"></i></div>
+              <div class="tip-text">
+                <strong>ENCRYPTED STORAGE</strong>
+                <p>Your email is stored securely on the server and is never exposed publicly.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-key"></i></div>
+              <div class="tip-text">
+                <strong>PASSWORD RESET</strong>
+                <p>A 6-digit verification code will be sent to your email when you request a recovery.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-clock"></i></div>
+              <div class="tip-text">
+                <strong>CODE EXPIRY</strong>
+                <p>Recovery codes expire after 10 minutes for maximum security.</p>
+              </div>
+            </div>
+            <div class="security-tip-item">
+              <div class="tip-icon"><i class="fas fa-user-shield"></i></div>
+              <div class="tip-text">
+                <strong>IDENTITY CHECK</strong>
+                <p>During recovery, you must provide the exact email registered to this locker.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bottom-footer">
+      <div class="footer-left"><span class="copyright-icon">©</span> 2026 DROPLOCK. ANONYMOUS_PRECISION.</div>
+      <div class="footer-right">
+        <a href="manifesto.html" class="footer-link">PRIVACY</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Delete Locker Confirmation Modal -->
+  <div id="delete-locker-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#0d0d0d; border:1px solid rgba(255,70,70,0.4); border-radius:8px; padding:36px 32px; max-width:420px; width:90%; font-family:var(--font-mono); text-align:center;">
+      <div style="font-size:2rem; color:#ff4a4a; margin-bottom:16px;"><i class="fas fa-skull-crossbones"></i></div>
+      <h2 style="color:#fff; font-size:1rem; letter-spacing:2px; margin-bottom:12px;">DELETE LOCKER</h2>
+      <p style="color:#aaa; font-size:0.75rem; line-height:1.7; margin-bottom:24px;">This action is <strong style="color:#ff4a4a;">permanent and irreversible</strong>.<br>All notes and files will be erased from the server.</p>
+      <p style="color:#aaa; font-size:0.7rem; margin-bottom:10px;">Type <strong style="color:#fff;" id="delete-confirm-label"></strong> to confirm:</p>
+      <input id="delete-confirm-input" type="text" placeholder="locker name" autocomplete="off"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,70,70,0.3); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:20px; box-sizing:border-box;">
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="delete-modal-cancel" style="flex:1; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#aaa; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">CANCEL</button>
+        <button id="delete-modal-confirm" style="flex:1; padding:10px; background:rgba(255,70,70,0.15); border:1px solid rgba(255,70,70,0.5); border-radius:4px; color:#ff4a4a; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">DELETE</button>
+      </div>
+      <p id="delete-modal-error" style="color:#ff4a4a; font-size:0.68rem; margin-top:14px; min-height:1em;"></p>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="change-password-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#0d0d0d; border:1px solid rgba(0,229,255,0.25); border-radius:8px; padding:36px 32px; max-width:420px; width:90%; font-family:var(--font-mono); text-align:center;">
+      <div style="font-size:2rem; color:var(--cyan); margin-bottom:16px;"><i class="fas fa-key"></i></div>
+      <h2 style="color:#fff; font-size:1rem; letter-spacing:2px; margin-bottom:24px;">CHANGE PASSWORD</h2>
+      <input id="cp-old-password" type="password" placeholder="Enter old password" autocomplete="current-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:14px; box-sizing:border-box;">
+      <input id="cp-new-password" type="password" placeholder="Enter new password" autocomplete="new-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:14px; box-sizing:border-box;">
+      <input id="cp-confirm-password" type="password" placeholder="Confirm new password" autocomplete="new-password"
+        style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:4px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; outline:none; margin-bottom:20px; box-sizing:border-box;">
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="cp-modal-cancel" style="flex:1; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#aaa; font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">CANCEL</button>
+        <button id="cp-modal-confirm" style="flex:1; padding:10px; background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); border-radius:4px; color:var(--cyan); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:1px; cursor:pointer;">SAVE</button>
+      </div>
+      <p id="cp-modal-error" style="font-size:0.68rem; margin-top:14px; min-height:1em;"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (async function initLockerPage() {
+      const params = new URLSearchParams(window.location.search);
+      const lockerName = (params.get('name') || '').trim();
+      const vaultIdDisplay = document.getElementById('vault-id-display');
+      const tabsContainer = document.getElementById('notes-tabs');
+      const addNoteBtn = document.getElementById('add-note-btn');
+      const saveBtn = document.getElementById('save-locker-btn');
+      const reloadBtn = document.getElementById('reload-locker-btn');
+      const assetList = document.querySelector('.asset-list');
+      const rightColumn = document.querySelector('.locker-right-column');
+      const rightColumnTitle = document.querySelector('.column-title');
+      const dropzone = document.querySelector('.asset-dropzone');
+      const importBtn = document.querySelector('.import-file-btn');
+      const toolbar = document.querySelector('.editor-toolbar');
+      const mainEditorWrapper = document.querySelector('.locker-editor-wrapper');
+      const protocolNav = document.querySelector('.protocol-nav');
+      const lockerSidebar = document.querySelector('.transfer-sidebar.locker-sidebar');
+      const notesNav = document.querySelectorAll('.protocol-nav .protocol-item')[0];
+      const filesNav = document.querySelectorAll('.protocol-nav .protocol-item')[1];
+      const settingsNav = document.querySelector('.settings-nav-item');
+      const settingsDropdown = document.querySelector('.settings-dropdown');
+      const API_BASE = window.__DROPLOCK_API_BASE_URL || 'http://localhost:8080';
+      const fileInput = document.createElement('input');
+
+      let notes = [];
+      let allFiles = [];
+      let activeNoteId = '';
+      let mode = 'notes';
+      let lockerPassword = '';
+
+      if (!lockerName) {
+        window.location.href = 'index.html';
+        return;
+      }
+      if (vaultIdDisplay) vaultIdDisplay.innerText = lockerName.toUpperCase();
+
+      const oldTextarea = document.querySelector('.secure-textarea');
+      const editor = document.createElement('div');
+      editor.className = 'secure-textarea';
+      editor.contentEditable = 'true';
+      editor.spellcheck = true;
+      editor.setAttribute('data-placeholder', 'Starts writing now...');
+      editor.style.whiteSpace = 'pre-wrap';
+      editor.style.overflowY = 'auto';
+      editor.style.border = 'none';
+      editor.style.outline = 'none';
+      editor.innerHTML = '';
+      if (oldTextarea && oldTextarea.parentNode) oldTextarea.parentNode.replaceChild(editor, oldTextarea);
+      document.execCommand('styleWithCSS', false, false);
+
+      let savedSelection = null;
+
+      const allFilesBoard = document.createElement('div');
+      allFilesBoard.className = 'secure-textarea';
+      allFilesBoard.style.display = 'none';
+      allFilesBoard.style.overflowY = 'auto';
+      mainEditorWrapper.appendChild(allFilesBoard);
+
+      fileInput.type = 'file';
+      fileInput.multiple = true;
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+
+      function apiUrl(path) {
+        return `${API_BASE}${path}`;
+      }
+
+      async function fetchJSON(path, options = {}) {
+        const res = await fetch(apiUrl(path), options);
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status}`);
+        }
+        return res.json();
+      }
+
+      function generateId() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+        return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      }
+
+      function activeNote() {
+        return notes.find((n) => n.id === activeNoteId) || null;
+      }
+
+      function noteTitleById(noteId) {
+        const note = notes.find((item) => item.id === noteId);
+        return note ? (note.title || 'untitled') : 'unknown note';
+      }
+
+      function formatSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+      }
+
+      function fileIconClass(name, contentType) {
+        const lower = (name || '').toLowerCase();
+        if ((contentType || '').includes('image') || /\.(png|jpe?g|gif|webp|svg)$/i.test(lower)) return 'far fa-image fa-lg';
+        if ((contentType || '').includes('pdf') || /\.pdf$/i.test(lower)) return 'far fa-file-pdf fa-lg';
+        if ((contentType || '').includes('video') || /\.(mp4|mov|avi|mkv)$/i.test(lower)) return 'far fa-file-video fa-lg';
+        if ((contentType || '').includes('audio') || /\.(mp3|wav|ogg)$/i.test(lower)) return 'far fa-file-audio fa-lg';
+        if (/\.(zip|rar|7z|tar|gz)$/i.test(lower)) return 'far fa-file-archive fa-lg';
+        return 'far fa-file fa-lg';
+      }
+
+      function saveActiveNoteLocally() {
+        const note = activeNote();
+        if (!note) return;
+        note.content = editor.innerHTML;
+      }
+
+      function isSelectionInsideEditor(selection) {
+        if (!selection || !selection.rangeCount) return false;
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        return container === editor || editor.contains(container.nodeType === Node.ELEMENT_NODE ? container : container.parentNode);
+      }
+
+      function saveEditorSelection() {
+        const selection = window.getSelection();
+        if (!isSelectionInsideEditor(selection)) return;
+        savedSelection = selection.getRangeAt(0).cloneRange();
+      }
+
+      function restoreEditorSelection() {
+        if (!savedSelection) return false;
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedSelection);
+        return true;
+      }
+
+      function currentBlockTag() {
+        const value = (document.queryCommandValue('formatBlock') || '').toString().replace(/[<>]/g, '').toUpperCase();
+        if (value) return value;
+        const selection = window.getSelection();
+        if (!isSelectionInsideEditor(selection)) return '';
+        let node = selection.anchorNode;
+        if (node && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
+        while (node && node !== editor) {
+          if (/^H[1-6]$/.test(node.nodeName)) return node.nodeName;
+          node = node.parentNode;
+        }
+        return '';
+      }
+
+      function updateToolbarState() {
+        if (!toolbar) return;
+        const selection = window.getSelection();
+        const inEditor = isSelectionInsideEditor(selection) || document.activeElement === editor;
+        toolbar.querySelectorAll('.toolbar-btn').forEach((btn) => {
+          const command = btn.dataset.command;
+          const value = (btn.dataset.value || '').toUpperCase();
+          let isActive = false;
+          if (inEditor) {
+            if (command === 'formatBlock') {
+              isActive = currentBlockTag() === value;
+            } else {
+              isActive = document.queryCommandState(command);
+            }
+          }
+          btn.classList.toggle('active', Boolean(isActive));
+        });
+      }
+
+      function renderTabs() {
+        tabsContainer.innerHTML = '';
+        notes.forEach((note) => {
+          const tab = document.createElement('div');
+          tab.className = `browser-tab${note.id === activeNoteId ? ' active' : ''}`;
+          tab.dataset.id = note.id;
+          tab.innerHTML = `<span class="tab-name"></span><i class="fas fa-times tab-close"></i>`;
+          tab.querySelector('.tab-name').innerText = note.title || 'untitled';
+          tabsContainer.appendChild(tab);
+        });
+      }
+
+      function renderEditorFromActive() {
+        const note = activeNote();
+        if (!note) return;
+        editor.innerHTML = note.content || '';
+        savedSelection = null;
+        updateToolbarState();
+      }
+
+      function downloadFile(file) {
+        const href = apiUrl(`/api/locker/files/download?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}&fileId=${encodeURIComponent(file.id)}`);
+        const a = document.createElement('a');
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.click();
+      }
+
+      async function deleteFile(file) {
+        const ok = window.confirm(`Delete "${file.name}"?`);
+        if (!ok) return;
+        // Optimistic UI: remove immediately
+        allFiles = allFiles.filter((f) => f.id !== file.id);
+        applyMode();
+        // Fire server request in background
+        try {
+          const res = await fetch(apiUrl('/api/locker/files/delete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: lockerName,
+              password: lockerPassword,
+              fileId: file.id,
+            }),
+          });
+          if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            const hint =
+              res.status === 404
+                ? ' (likely your deployed backend is missing /api/locker/files/delete)'
+                : '';
+            throw new Error((text || `HTTP ${res.status}`) + hint);
+          }
+        } catch (err) {
+          // Silently log — file is already removed from UI
+          console.warn('Delete request failed:', err);
+        }
+      }
+
+      function renderAssetList(files, options = {}) {
+        if (!assetList) return;
+        const {
+          emptyText = 'NO FILES YET',
+          includeNoteLabel = false,
+        } = options;
+        assetList.innerHTML = '';
+        if (!files.length) {
+          const empty = document.createElement('div');
+          empty.className = 'asset-size';
+          empty.innerText = emptyText;
+          assetList.appendChild(empty);
+          return;
+        }
+        files.forEach((file) => {
+          const card = document.createElement('div');
+          card.className = 'asset-card';
+          card.innerHTML = `
+            <div class="asset-icon"><i class="${fileIconClass(file.name, file.contentType)}"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name"></div>
+              <div class="asset-size"></div>
+            </div>
+            <button class="asset-delete-btn" type="button">CANCEL</button>
+          `;
+          const fileName = includeNoteLabel ? `${file.name} - ${noteTitleById(file.noteId)}` : file.name;
+          card.querySelector('.asset-name').innerText = fileName;
+          card.querySelector('.asset-size').innerText = formatSize(file.size || 0);
+          card.addEventListener('click', () => downloadFile(file));
+          const deleteBtn = card.querySelector('.asset-delete-btn');
+          deleteBtn.addEventListener('click', async (evt) => {
+            evt.stopPropagation();
+            try {
+              await deleteFile(file);
+            } catch (err) {
+              alert(`Unable to delete file: ${err && err.message ? err.message : 'unknown error'}`);
+            }
+          });
+          assetList.appendChild(card);
+        });
+      }
+
+      function renderAllFilesBoard() {
+        allFilesBoard.innerHTML = '';
+        if (!allFiles.length) {
+          allFilesBoard.innerHTML = '<div class="asset-size">NO FILES IN THIS LOCKER</div>';
+          return;
+        }
+        allFiles.forEach((file) => {
+          const row = document.createElement('div');
+          row.className = 'asset-card';
+          row.style.marginBottom = '10px';
+          row.innerHTML = `
+            <div class="asset-icon"><i class="${fileIconClass(file.name, file.contentType)}"></i></div>
+            <div class="asset-meta">
+              <div class="asset-name"></div>
+              <div class="asset-size"></div>
+            </div>
+            <button class="asset-delete-btn" type="button">CANCEL</button>
+          `;
+          row.querySelector('.asset-name').innerText = `${file.name} - ${noteTitleById(file.noteId)}`;
+          row.querySelector('.asset-size').innerText = formatSize(file.size || 0);
+          row.addEventListener('click', () => downloadFile(file));
+          const deleteBtn = row.querySelector('.asset-delete-btn');
+          deleteBtn.addEventListener('click', async (evt) => {
+            evt.stopPropagation();
+            try {
+              await deleteFile(file);
+            } catch (err) {
+              alert(`Unable to delete file: ${err && err.message ? err.message : 'unknown error'}`);
+            }
+          });
+          allFilesBoard.appendChild(row);
+        });
+      }
+
+      function noteFiles() {
+        return allFiles.filter((f) => f.noteId === activeNoteId);
+      }
+
+      function applyMode() {
+        if (mode === 'files') {
+          editor.style.display = 'none';
+          if (toolbar) toolbar.style.display = 'none';
+          allFilesBoard.style.display = 'block';
+          if (rightColumn) rightColumn.style.display = 'none';
+          renderAllFilesBoard();
+          return;
+        }
+        editor.style.display = 'block';
+        if (toolbar) toolbar.style.display = 'flex';
+        allFilesBoard.style.display = 'none';
+        // Show right column in NOTES mode
+        if (rightColumn) rightColumn.style.display = 'flex';
+        if (dropzone) dropzone.style.display = 'flex';
+        if (rightColumnTitle) rightColumnTitle.innerText = 'FILES FOR THIS NOTE';
+        renderAssetList(noteFiles(), {
+          emptyText: 'NO FILES ATTACHED TO THIS NOTE',
+        });
+      }
+
+      async function loadNotesAndFiles() {
+        const notesResp = await fetchJSON(`/api/locker/notes?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}`);
+        notes = (notesResp.notes || []).map((n) => ({
+          id: n.id,
+          title: n.title || 'untitled',
+          content: n.content || '',
+        }));
+        if (!notes.length) {
+          notes = [{ id: generateId(), title: 'untitled', content: '' }];
+        }
+        if (!activeNoteId || !notes.some((n) => n.id === activeNoteId)) {
+          activeNoteId = notes[0].id;
+        }
+        const filesResp = await fetchJSON(`/api/locker/files?name=${encodeURIComponent(lockerName)}&password=${encodeURIComponent(lockerPassword)}`);
+        allFiles = filesResp.files || [];
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      }
+
+      async function saveAllNotes() {
+        saveActiveNoteLocally();
+        for (const note of notes) {
+          await fetchJSON('/api/locker/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: lockerName,
+              password: lockerPassword,
+              noteId: note.id,
+              title: (note.title || 'untitled').trim() || 'untitled',
+              content: note.content || '',
+            }),
+          });
+        }
+      }
+
+      async function ensurePassword() {
+        const storageKey = `droplock.lockerPassword:${lockerName}`;
+        lockerPassword = (sessionStorage.getItem(storageKey) || '').trim();
+        let attempts = 0;
+        while (attempts < 3) {
+          if (!lockerPassword) {
+            lockerPassword = (window.prompt(`Enter password for locker "${lockerName}"`) || '').trim();
+          }
+          if (!lockerPassword) {
+            attempts++;
+            continue;
+          }
+          const res = await fetch(apiUrl('/api/locker/open'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+          });
+          if (res.ok) {
+            sessionStorage.setItem(storageKey, lockerPassword);
+            return true;
+          }
+          lockerPassword = '';
+          attempts++;
+          alert('Invalid locker password.');
+        }
+        return false;
+      }
+
+      function setSidebarActive(section) {
+        if (notesNav) notesNav.classList.toggle('active', section === 'notes');
+        if (filesNav) filesNav.classList.toggle('active', section === 'files');
+        if (settingsNav) settingsNav.classList.toggle('active', section === 'settings');
+      }
+
+      function isMobileNavLayout() {
+        return window.innerWidth <= 992;
+      }
+
+      function positionSettingsDropdown() {
+        if (!settingsDropdown || !settingsNav || !lockerSidebar || !protocolNav || !isMobileNavLayout()) return;
+        const sidebarRect = lockerSidebar.getBoundingClientRect();
+        const rect = settingsNav.getBoundingClientRect();
+        const horizontalOffset = rect.left - sidebarRect.left + protocolNav.scrollLeft;
+        const maxDropdownWidth = Math.max(160, Math.min(lockerSidebar.clientWidth - 24, window.innerWidth - 24));
+        const desiredWidth = Math.max(rect.width, 220);
+        const dropdownWidth = Math.min(desiredWidth, maxDropdownWidth);
+        const maxLeft = Math.max(12, lockerSidebar.clientWidth - dropdownWidth - 12);
+        const dropdownLeft = Math.min(Math.max(12, horizontalOffset), maxLeft);
+        settingsDropdown.style.position = 'absolute';
+        settingsDropdown.style.top = `${rect.bottom - sidebarRect.top + 6}px`;
+        settingsDropdown.style.left = `${dropdownLeft}px`;
+        settingsDropdown.style.width = `${dropdownWidth}px`;
+      }
+
+      function closeSettingsDropdown() {
+        const icon = document.querySelector('.settings-nav-item .dropdown-icon');
+        if (settingsDropdown) {
+          settingsDropdown.style.display = 'none';
+          settingsDropdown.style.position = '';
+          settingsDropdown.style.top = '';
+          settingsDropdown.style.left = '';
+          settingsDropdown.style.width = '';
+        }
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+
+      function toggleSettingsDropdown() {
+        if (!settingsDropdown) return;
+        const icon = document.querySelector('.settings-nav-item .dropdown-icon');
+        const isOpen = settingsDropdown.style.display === 'flex';
+        if (isOpen) {
+          closeSettingsDropdown();
+          return;
+        }
+        settingsDropdown.style.display = 'flex';
+        if (isMobileNavLayout()) {
+          positionSettingsDropdown();
+        }
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      }
+
+      const notesAndFilesNav = document.querySelectorAll('.protocol-nav .protocol-item');
+      notesAndFilesNav.forEach((item, idx) => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (item.classList.contains('settings-nav-item')) {
+            toggleSettingsDropdown();
+            return;
+          }
+
+          if (secureAccountActive) {
+            exitSecureAccountMode();
+          }
+          closeSettingsDropdown();
+          if (idx === 0) {
+            mode = 'notes';
+            setSidebarActive('notes');
+          }
+          if (idx === 1) {
+            mode = 'files';
+            setSidebarActive('files');
+          }
+          applyMode();
+        });
+      });
+
+      tabsContainer.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('tab-close')) {
+          e.stopPropagation();
+          if (notes.length === 1) return;
+          const tab = e.target.closest('.browser-tab');
+          const noteId = tab ? tab.dataset.id : '';
+          if (!noteId) return;
+          saveActiveNoteLocally();
+          const next = notes.find((n) => n.id !== noteId);
+          notes = notes.filter((n) => n.id !== noteId);
+          allFiles = allFiles.filter((f) => f.noteId !== noteId);
+          activeNoteId = next ? next.id : '';
+          renderTabs();
+          renderEditorFromActive();
+          applyMode();
+          await fetch(apiUrl('/api/locker/notes/delete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword, noteId }),
+          });
+          return;
+        }
+        const tab = e.target.closest('.browser-tab');
+        if (!tab) return;
+        if (activeNoteId === tab.dataset.id) return; // Prevent re-rendering same tab so dblclick works
+        saveActiveNoteLocally();
+        activeNoteId = tab.dataset.id;
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      });
+
+      tabsContainer.addEventListener('dblclick', (e) => {
+        const nameSpan = e.target.closest('.tab-name');
+        if (!nameSpan) return;
+        const tab = e.target.closest('.browser-tab');
+        const note = notes.find((n) => n.id === (tab ? tab.dataset.id : ''));
+        if (!note) return;
+        nameSpan.contentEditable = 'true';
+        nameSpan.focus();
+        const range = document.createRange();
+        range.selectNodeContents(nameSpan);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        const finishRename = () => {
+          nameSpan.contentEditable = 'false';
+          note.title = nameSpan.innerText.trim() || 'untitled';
+          renderTabs();
+        };
+        nameSpan.onblur = finishRename;
+        nameSpan.onkeydown = (evt) => {
+          if (evt.key === 'Enter') {
+            evt.preventDefault();
+            finishRename();
+          }
+        };
+      });
+
+      addNoteBtn.addEventListener('click', () => {
+        saveActiveNoteLocally();
+        const note = {
+          id: generateId(),
+          title: 'untitled',
+          content: '',
+        };
+        notes.push(note);
+        activeNoteId = note.id;
+        mode = 'notes';
+        setSidebarActive('notes');
+        renderTabs();
+        renderEditorFromActive();
+        applyMode();
+      });
+
+      if (toolbar) {
+        const buttons = toolbar.querySelectorAll('.toolbar-btn');
+        const runEditorCommand = (command, value = null) => {
+          editor.focus();
+          restoreEditorSelection();
+          if (command === 'formatBlock') {
+            const currentBlock = currentBlockTag();
+            const nextValue = currentBlock === (value || '').toUpperCase() ? 'DIV' : value;
+            document.execCommand(command, false, nextValue);
+          } else {
+            document.execCommand(command, false, value);
+          }
+          saveEditorSelection();
+          saveActiveNoteLocally();
+          updateToolbarState();
+        };
+        buttons.forEach((btn) => {
+          btn.addEventListener('mousedown', (evt) => {
+            evt.preventDefault();
+          });
+          btn.addEventListener('click', () => {
+            runEditorCommand(btn.dataset.command, btn.dataset.value || null);
+          });
+        });
+      }
+
+      ['keyup', 'mouseup', 'input', 'focus', 'blur'].forEach((eventName) => {
+        editor.addEventListener(eventName, () => {
+          if (eventName !== 'blur') saveEditorSelection();
+          if (eventName === 'input') saveActiveNoteLocally();
+          updateToolbarState();
+        });
+      });
+
+      document.addEventListener('selectionchange', () => {
+        const selection = window.getSelection();
+        if (isSelectionInsideEditor(selection)) {
+          saveEditorSelection();
+        }
+        updateToolbarState();
+      });
+
+      saveBtn.addEventListener('click', async () => {
+        saveBtn.disabled = true;
+        const label = saveBtn.querySelector('span');
+        const oldText = label ? label.innerText : '';
+        if (label) label.innerText = 'SAVING...';
+        try {
+          await saveAllNotes();
+          await loadNotesAndFiles();
+          if (label) label.innerText = 'SAVED';
+          setTimeout(() => {
+            if (label) label.innerText = oldText || 'SAVE';
+          }, 1200);
+        } catch (err) {
+          alert('Unable to save notes. Check your connection.');
+          if (label) label.innerText = oldText || 'SAVE';
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+
+      document.addEventListener('keydown', async (event) => {
+        const isSaveShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's';
+        if (!isSaveShortcut) return;
+        event.preventDefault();
+        if (saveBtn.disabled) return;
+        saveBtn.click();
+      });
+
+      reloadBtn.addEventListener('click', () => window.location.reload());
+
+      importBtn.addEventListener('click', () => {
+        if (mode !== 'notes') {
+          alert('Switch to NOTES to upload into a specific note.');
+          return;
+        }
+        fileInput.click();
+      });
+
+      async function uploadFiles(fileList) {
+        if (!fileList.length) return;
+        const note = activeNote();
+        if (!note) return;
+        await saveAllNotes();
+        
+        const form = new FormData();
+        form.append('name', lockerName);
+        form.append('password', lockerPassword);
+        form.append('noteId', note.id);
+        fileList.forEach((file) => form.append('files', file));
+
+        const importBtn = document.querySelector('.import-file-btn');
+        let progressContainer = document.querySelector('.upload-progress-container');
+        if (!progressContainer && dropzone) {
+          progressContainer = document.createElement('div');
+          progressContainer.className = 'upload-progress-container';
+          progressContainer.style.width = '100%';
+          progressContainer.style.marginTop = '15px';
+          progressContainer.style.maxWidth = '180px';
+          progressContainer.innerHTML = `
+            <div class="upload-progress-bar" style="height: 4px; background: rgba(0,229,255,0.1); border-radius: 2px; overflow: hidden; margin: 0 auto;">
+              <div class="upload-progress-fill" style="width: 0%; height: 100%; background: var(--cyan); transition: width 0.1s linear;"></div>
+            </div>
+            <div class="upload-progress-text" style="font-size: 0.55rem; color: var(--cyan); margin-top: 6px; text-align: center; font-family: var(--font-mono); letter-spacing: 1px;">UPLOADING 0%</div>
+          `;
+          dropzone.appendChild(progressContainer);
+        }
+
+        if (importBtn) importBtn.style.display = 'none';
+        
+        const fill = progressContainer ? progressContainer.querySelector('.upload-progress-fill') : null;
+        const text = progressContainer ? progressContainer.querySelector('.upload-progress-text') : null;
+        if (progressContainer) progressContainer.style.display = 'block';
+        if (fill) fill.style.width = '0%';
+        if (text) text.innerText = 'UPLOADING 0%';
+
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', apiUrl('/api/locker/files/upload'), true);
+          
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable && fill && text) {
+              const p = Math.round((e.loaded / e.total) * 100);
+              fill.style.width = p + '%';
+              text.innerText = `UPLOADING ${p}%`;
+            }
+          };
+
+          xhr.onload = async () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              await loadNotesAndFiles();
+              resolve();
+            } else {
+              reject(new Error('Upload failed'));
+            }
+            if (importBtn) importBtn.style.display = 'inline-block';
+            if (progressContainer) progressContainer.style.display = 'none';
+          };
+          
+          xhr.onerror = () => {
+            reject(new Error('Upload failed'));
+            if (importBtn) importBtn.style.display = 'inline-block';
+            if (progressContainer) progressContainer.style.display = 'none';
+          };
+
+          xhr.send(form);
+        });
+      }
+
+      fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files || []);
+        fileInput.value = '';
+        if (!files.length) return;
+        try {
+          await uploadFiles(files);
+        } catch (err) {
+          alert('File upload failed.');
+        }
+      });
+
+      if (dropzone) {
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+        dropzone.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          if (mode !== 'notes') {
+            alert('Switch to NOTES to upload into a specific note.');
+            return;
+          }
+          const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+          if (!files.length) return;
+          try {
+            await uploadFiles(files);
+          } catch (err) {
+            alert('File upload failed.');
+          }
+        });
+      }
+
+      const authed = await ensurePassword();
+      if (!authed) {
+        window.location.href = 'index.html';
+        return;
+      }
+      try {
+        await loadNotesAndFiles();
+      } catch (err) {
+        alert('Unable to load locker data.');
+      }
+
+      // --- Delete Locker Modal ---
+      const deleteModal = document.getElementById('delete-locker-modal');
+      const deleteConfirmLabel = document.getElementById('delete-confirm-label');
+      const deleteConfirmInput = document.getElementById('delete-confirm-input');
+      const deleteModalCancel = document.getElementById('delete-modal-cancel');
+      const deleteModalConfirm = document.getElementById('delete-modal-confirm');
+      const deleteModalError = document.getElementById('delete-modal-error');
+
+      const deleteAccountLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('DELETE ACCOUNT'));
+
+      if (deleteAccountLink) {
+        deleteAccountLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          deleteConfirmLabel.innerText = lockerName.toUpperCase();
+          deleteConfirmInput.value = '';
+          deleteModalError.innerText = '';
+          deleteModal.style.display = 'flex';
+          setTimeout(() => deleteConfirmInput.focus(), 50);
+        });
+      }
+
+      if (deleteModalCancel) {
+        deleteModalCancel.addEventListener('click', () => {
+          deleteModal.style.display = 'none';
+        });
+      }
+
+      if (deleteModalConfirm) {
+        deleteModalConfirm.addEventListener('click', async () => {
+          deleteModalError.innerText = '';
+          const typed = (deleteConfirmInput.value || '').trim().toLowerCase();
+          if (typed !== lockerName.toLowerCase()) {
+            deleteModalError.innerText = 'Locker name does not match. Please try again.';
+            return;
+          }
+          deleteModalConfirm.disabled = true;
+          deleteModalConfirm.innerText = 'DELETING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/delete'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            sessionStorage.removeItem(`droplock.lockerPassword:${lockerName}`);
+            window.location.href = 'index.html';
+          } catch (err) {
+            deleteModalError.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            deleteModalConfirm.disabled = false;
+            deleteModalConfirm.innerText = 'DELETE';
+          }
+        });
+      }
+
+      // Close modal on backdrop click
+      deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) deleteModal.style.display = 'none';
+      });
+
+      // --- Change Password Modal ---
+      const cpModal = document.getElementById('change-password-modal');
+      const cpOldInput = document.getElementById('cp-old-password');
+      const cpNewInput = document.getElementById('cp-new-password');
+      const cpConfirmInput = document.getElementById('cp-confirm-password');
+      const cpCancel = document.getElementById('cp-modal-cancel');
+      const cpConfirm = document.getElementById('cp-modal-confirm');
+      const cpError = document.getElementById('cp-modal-error');
+
+      const changePasswordLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('CHANGE PASSWORD'));
+
+      function closeCpModal() {
+        cpModal.style.display = 'none';
+        cpOldInput.value = '';
+        cpNewInput.value = '';
+        cpConfirmInput.value = '';
+        cpError.innerText = '';
+        cpError.style.color = '#ff4a4a';
+      }
+
+      if (changePasswordLink) {
+        changePasswordLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          cpError.innerText = '';
+          cpOldInput.value = '';
+          cpNewInput.value = '';
+          cpConfirmInput.value = '';
+          cpModal.style.display = 'flex';
+          setTimeout(() => cpOldInput.focus(), 50);
+        });
+      }
+
+      if (cpCancel) cpCancel.addEventListener('click', closeCpModal);
+
+      cpModal.addEventListener('click', (e) => {
+        if (e.target === cpModal) closeCpModal();
+      });
+
+      if (cpConfirm) {
+        cpConfirm.addEventListener('click', async () => {
+          cpError.style.color = '#ff4a4a';
+          cpError.innerText = '';
+          const oldPw = (cpOldInput.value || '').trim();
+          const newPw = (cpNewInput.value || '').trim();
+          const confirmPw = (cpConfirmInput.value || '').trim();
+          if (!oldPw || !newPw || !confirmPw) {
+            cpError.innerText = 'All fields are required.';
+            return;
+          }
+          if (newPw !== confirmPw) {
+            cpError.innerText = 'New passwords do not match.';
+            return;
+          }
+          if (newPw.length < 4) {
+            cpError.innerText = 'New password must be at least 4 characters.';
+            return;
+          }
+          cpConfirm.disabled = true;
+          cpConfirm.innerText = 'SAVING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/change-password'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: lockerName,
+                oldPassword: oldPw,
+                newPassword: newPw,
+              }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            // Update cached password so future saves still work
+            lockerPassword = newPw;
+            const storageKey = `droplock.lockerPassword:${lockerName}`;
+            sessionStorage.setItem(storageKey, newPw);
+            cpError.style.color = 'var(--cyan)';
+            cpError.innerText = 'Password changed successfully!';
+            cpConfirm.innerText = 'SAVE';
+            cpConfirm.disabled = false;
+            setTimeout(closeCpModal, 1800);
+          } catch (err) {
+            cpError.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            cpConfirm.disabled = false;
+            cpConfirm.innerText = 'SAVE';
+          }
+        });
+      }
+      // --- Secure Account View ---
+      const secureAccountView = document.getElementById('secure-account-view');
+      const notesViewHeader = document.getElementById('notes-view-header');
+      const notesViewEditor = document.getElementById('notes-view-editor');
+      const rightColFiles = document.getElementById('right-col-files');
+      const rightColSecurity = document.getElementById('right-col-security');
+      const secureEmailInput = document.getElementById('secure-email-input');
+      const secureEmailValue = document.getElementById('secure-email-value');
+      const saveEmailBtn = document.getElementById('save-email-btn');
+      const backToNotesBtn = document.getElementById('back-to-notes-btn');
+      const secureEmailStatus = document.getElementById('secure-email-status');
+
+      const secureAccountLink = [...document.querySelectorAll('.dropdown-item')]
+        .find(el => el.innerText.includes('SECURE ACCOUNT'));
+
+      let secureAccountActive = false;
+
+      function enterSecureAccountMode() {
+        secureAccountActive = true;
+        setSidebarActive('settings');
+        // Hide notes UI
+        if (notesViewHeader) notesViewHeader.style.display = 'none';
+        if (notesViewEditor) notesViewEditor.style.display = 'none';
+        if (allFilesBoard) allFilesBoard.style.display = 'none';
+        // Show secure account view
+        if (secureAccountView) secureAccountView.style.display = 'flex';
+        // Swap right column
+        if (rightColFiles) rightColFiles.style.display = 'none';
+        if (rightColSecurity) rightColSecurity.style.display = 'block';
+        if (rightColumn) rightColumn.style.display = 'flex';
+        // Clear status
+        if (secureEmailStatus) { secureEmailStatus.innerText = ''; secureEmailStatus.className = 'secure-email-status'; }
+        // Load current email
+        loadCurrentEmail();
+      }
+
+      function exitSecureAccountMode() {
+        secureAccountActive = false;
+        // Restore notes UI
+        if (notesViewHeader) notesViewHeader.style.display = '';
+        if (notesViewEditor) notesViewEditor.style.display = '';
+        if (secureAccountView) secureAccountView.style.display = 'none';
+        // Restore right column
+        if (rightColFiles) rightColFiles.style.display = '';
+        if (rightColSecurity) rightColSecurity.style.display = 'none';
+        setSidebarActive(mode === 'files' ? 'files' : 'notes');
+        // Restore correct mode
+        applyMode();
+      }
+
+      async function loadCurrentEmail() {
+        try {
+          const res = await fetch(apiUrl('/api/locker/get-email'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lockerName, password: lockerPassword }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const email = (data.email || '').trim();
+            if (secureEmailValue) {
+              secureEmailValue.innerText = email || 'NOT SET';
+              secureEmailValue.style.color = email ? 'var(--cyan)' : 'var(--text-dim)';
+            }
+            if (secureEmailInput && email) {
+              secureEmailInput.value = email;
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to load current email:', err);
+        }
+      }
+
+      if (secureAccountLink) {
+        secureAccountLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          enterSecureAccountMode();
+          closeSettingsDropdown();
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        if (!settingsDropdown || settingsDropdown.style.display !== 'flex') return;
+        if (isMobileNavLayout()) {
+          positionSettingsDropdown();
+          return;
+        }
+        settingsDropdown.style.position = '';
+        settingsDropdown.style.top = '';
+        settingsDropdown.style.left = '';
+        settingsDropdown.style.width = '';
+      });
+
+      if (backToNotesBtn) {
+        backToNotesBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          mode = 'notes';
+          exitSecureAccountMode();
+        });
+      }
+
+      if (saveEmailBtn) {
+        saveEmailBtn.addEventListener('click', async () => {
+          const email = (secureEmailInput.value || '').trim();
+          if (!email) {
+            secureEmailStatus.innerText = 'Please enter a valid email address.';
+            secureEmailStatus.className = 'secure-email-status error';
+            return;
+          }
+          // Basic email format check
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            secureEmailStatus.innerText = 'Invalid email format.';
+            secureEmailStatus.className = 'secure-email-status error';
+            return;
+          }
+          saveEmailBtn.disabled = true;
+          saveEmailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SAVING...';
+          try {
+            const res = await fetch(apiUrl('/api/locker/set-email'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: lockerName, password: lockerPassword, email }),
+            });
+            if (!res.ok) {
+              const txt = await res.text().catch(() => '');
+              throw new Error(txt || `HTTP ${res.status}`);
+            }
+            secureEmailStatus.innerText = 'Recovery email saved successfully!';
+            secureEmailStatus.className = 'secure-email-status success';
+            if (secureEmailValue) {
+              secureEmailValue.innerText = email;
+              secureEmailValue.style.color = 'var(--cyan)';
+            }
+          } catch (err) {
+            secureEmailStatus.innerText = `Failed: ${err && err.message ? err.message : 'unknown error'}`;
+            secureEmailStatus.className = 'secure-email-status error';
+          } finally {
+            saveEmailBtn.disabled = false;
+            saveEmailBtn.innerHTML = '<i class="fas fa-check"></i> SAVE EMAIL';
+          }
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
