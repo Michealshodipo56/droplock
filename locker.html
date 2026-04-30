@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Access your DropLock locker to store private notes, manage files, and keep sensitive data inside a secure session.">
   <title>DropLock - Secure Vault Session</title>
   <link rel="icon" type="image/png" href="images/droplock-icon.png">
   <link rel="stylesheet" href="style.css">
@@ -43,7 +44,7 @@
           <i class="fas fa-sync-alt"></i>
           <span>RELOAD</span>
         </button>
-
+        
         <a href="index.html" class="logout-link" title="Terminate Session">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
         </a>
@@ -96,13 +97,13 @@
         <div id="notes-view-editor" class="locker-editor-wrapper">
           <div class="editor-label">
             <div class="editor-toolbar">
-              <button type="button" class="toolbar-btn" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
-              <button type="button" class="toolbar-btn" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
-              <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
-              <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="H2" title="Heading"><i class="fas fa-heading"></i></button>
+              <button class="toolbar-btn" title="Bold"><i class="fas fa-bold"></i></button>
+              <button class="toolbar-btn" title="Italic"><i class="fas fa-italic"></i></button>
+              <button class="toolbar-btn" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+              <button class="toolbar-btn" title="Heading"><i class="fas fa-heading"></i></button>
             </div>
           </div>
-          <textarea class="secure-textarea" placeholder="# Start writing now..."></textarea>
+          <textarea class="secure-textarea" placeholder="# Start writing..."></textarea>
         </div>
 
         <!-- Secure Account View (hidden by default) -->
@@ -203,6 +204,7 @@
     <footer class="bottom-footer">
       <div class="footer-left"><span class="copyright-icon">©</span> 2026 DROPLOCK. ANONYMOUS_PRECISION.</div>
       <div class="footer-right">
+         <a href="about.html" class="footer-link">ABOUT</a>
         <a href="manifesto.html" class="footer-link">PRIVACY</a>
       </div>
     </footer>
@@ -261,12 +263,8 @@
       const importBtn = document.querySelector('.import-file-btn');
       const toolbar = document.querySelector('.editor-toolbar');
       const mainEditorWrapper = document.querySelector('.locker-editor-wrapper');
-      const protocolNav = document.querySelector('.protocol-nav');
-      const lockerSidebar = document.querySelector('.transfer-sidebar.locker-sidebar');
       const notesNav = document.querySelectorAll('.protocol-nav .protocol-item')[0];
       const filesNav = document.querySelectorAll('.protocol-nav .protocol-item')[1];
-      const settingsNav = document.querySelector('.settings-nav-item');
-      const settingsDropdown = document.querySelector('.settings-dropdown');
       const API_BASE = window.__DROPLOCK_API_BASE_URL || 'http://localhost:8080';
       const fileInput = document.createElement('input');
 
@@ -286,7 +284,6 @@
       const editor = document.createElement('div');
       editor.className = 'secure-textarea';
       editor.contentEditable = 'true';
-      editor.spellcheck = true;
       editor.setAttribute('data-placeholder', 'Starts writing now...');
       editor.style.whiteSpace = 'pre-wrap';
       editor.style.overflowY = 'auto';
@@ -294,9 +291,6 @@
       editor.style.outline = 'none';
       editor.innerHTML = '';
       if (oldTextarea && oldTextarea.parentNode) oldTextarea.parentNode.replaceChild(editor, oldTextarea);
-      document.execCommand('styleWithCSS', false, false);
-
-      let savedSelection = null;
 
       const allFilesBoard = document.createElement('div');
       allFilesBoard.className = 'secure-textarea';
@@ -330,11 +324,6 @@
         return notes.find((n) => n.id === activeNoteId) || null;
       }
 
-      function noteTitleById(noteId) {
-        const note = notes.find((item) => item.id === noteId);
-        return note ? (note.title || 'untitled') : 'unknown note';
-      }
-
       function formatSize(bytes) {
         if (bytes < 1024) return `${bytes} B`;
         if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -358,60 +347,6 @@
         note.content = editor.innerHTML;
       }
 
-      function isSelectionInsideEditor(selection) {
-        if (!selection || !selection.rangeCount) return false;
-        const range = selection.getRangeAt(0);
-        const container = range.commonAncestorContainer;
-        return container === editor || editor.contains(container.nodeType === Node.ELEMENT_NODE ? container : container.parentNode);
-      }
-
-      function saveEditorSelection() {
-        const selection = window.getSelection();
-        if (!isSelectionInsideEditor(selection)) return;
-        savedSelection = selection.getRangeAt(0).cloneRange();
-      }
-
-      function restoreEditorSelection() {
-        if (!savedSelection) return false;
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(savedSelection);
-        return true;
-      }
-
-      function currentBlockTag() {
-        const value = (document.queryCommandValue('formatBlock') || '').toString().replace(/[<>]/g, '').toUpperCase();
-        if (value) return value;
-        const selection = window.getSelection();
-        if (!isSelectionInsideEditor(selection)) return '';
-        let node = selection.anchorNode;
-        if (node && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
-        while (node && node !== editor) {
-          if (/^H[1-6]$/.test(node.nodeName)) return node.nodeName;
-          node = node.parentNode;
-        }
-        return '';
-      }
-
-      function updateToolbarState() {
-        if (!toolbar) return;
-        const selection = window.getSelection();
-        const inEditor = isSelectionInsideEditor(selection) || document.activeElement === editor;
-        toolbar.querySelectorAll('.toolbar-btn').forEach((btn) => {
-          const command = btn.dataset.command;
-          const value = (btn.dataset.value || '').toUpperCase();
-          let isActive = false;
-          if (inEditor) {
-            if (command === 'formatBlock') {
-              isActive = currentBlockTag() === value;
-            } else {
-              isActive = document.queryCommandState(command);
-            }
-          }
-          btn.classList.toggle('active', Boolean(isActive));
-        });
-      }
-
       function renderTabs() {
         tabsContainer.innerHTML = '';
         notes.forEach((note) => {
@@ -428,8 +363,6 @@
         const note = activeNote();
         if (!note) return;
         editor.innerHTML = note.content || '';
-        savedSelection = null;
-        updateToolbarState();
       }
 
       function downloadFile(file) {
@@ -472,17 +405,13 @@
         }
       }
 
-      function renderAssetList(files, options = {}) {
+      function renderAssetList(files) {
         if (!assetList) return;
-        const {
-          emptyText = 'NO FILES YET',
-          includeNoteLabel = false,
-        } = options;
         assetList.innerHTML = '';
         if (!files.length) {
           const empty = document.createElement('div');
           empty.className = 'asset-size';
-          empty.innerText = emptyText;
+          empty.innerText = 'NO FILES YET';
           assetList.appendChild(empty);
           return;
         }
@@ -497,8 +426,7 @@
             </div>
             <button class="asset-delete-btn" type="button">CANCEL</button>
           `;
-          const fileName = includeNoteLabel ? `${file.name} - ${noteTitleById(file.noteId)}` : file.name;
-          card.querySelector('.asset-name').innerText = fileName;
+          card.querySelector('.asset-name').innerText = file.name;
           card.querySelector('.asset-size').innerText = formatSize(file.size || 0);
           card.addEventListener('click', () => downloadFile(file));
           const deleteBtn = card.querySelector('.asset-delete-btn');
@@ -532,7 +460,7 @@
             </div>
             <button class="asset-delete-btn" type="button">CANCEL</button>
           `;
-          row.querySelector('.asset-name').innerText = `${file.name} - ${noteTitleById(file.noteId)}`;
+          row.querySelector('.asset-name').innerText = `${file.name} (${file.noteId || 'unknown note'})`;
           row.querySelector('.asset-size').innerText = formatSize(file.size || 0);
           row.addEventListener('click', () => downloadFile(file));
           const deleteBtn = row.querySelector('.asset-delete-btn');
@@ -557,6 +485,7 @@
           editor.style.display = 'none';
           if (toolbar) toolbar.style.display = 'none';
           allFilesBoard.style.display = 'block';
+          // Hide the entire right column in FILES mode
           if (rightColumn) rightColumn.style.display = 'none';
           renderAllFilesBoard();
           return;
@@ -567,10 +496,8 @@
         // Show right column in NOTES mode
         if (rightColumn) rightColumn.style.display = 'flex';
         if (dropzone) dropzone.style.display = 'flex';
-        if (rightColumnTitle) rightColumnTitle.innerText = 'FILES FOR THIS NOTE';
-        renderAssetList(noteFiles(), {
-          emptyText: 'NO FILES ATTACHED TO THIS NOTE',
-        });
+        if (rightColumnTitle) rightColumnTitle.innerText = 'UPLOAD-YOUR-FILES';
+        renderAssetList(noteFiles());
       }
 
       async function loadNotesAndFiles() {
@@ -638,80 +565,31 @@
         return false;
       }
 
-      function setSidebarActive(section) {
-        if (notesNav) notesNav.classList.toggle('active', section === 'notes');
-        if (filesNav) filesNav.classList.toggle('active', section === 'files');
-        if (settingsNav) settingsNav.classList.toggle('active', section === 'settings');
-      }
-
-      function isMobileNavLayout() {
-        return window.innerWidth <= 992;
-      }
-
-      function positionSettingsDropdown() {
-        if (!settingsDropdown || !settingsNav || !lockerSidebar || !protocolNav || !isMobileNavLayout()) return;
-        const sidebarRect = lockerSidebar.getBoundingClientRect();
-        const rect = settingsNav.getBoundingClientRect();
-        const horizontalOffset = rect.left - sidebarRect.left + protocolNav.scrollLeft;
-        const maxDropdownWidth = Math.max(160, Math.min(lockerSidebar.clientWidth - 24, window.innerWidth - 24));
-        const desiredWidth = Math.max(rect.width, 220);
-        const dropdownWidth = Math.min(desiredWidth, maxDropdownWidth);
-        const maxLeft = Math.max(12, lockerSidebar.clientWidth - dropdownWidth - 12);
-        const dropdownLeft = Math.min(Math.max(12, horizontalOffset), maxLeft);
-        settingsDropdown.style.position = 'absolute';
-        settingsDropdown.style.top = `${rect.bottom - sidebarRect.top + 6}px`;
-        settingsDropdown.style.left = `${dropdownLeft}px`;
-        settingsDropdown.style.width = `${dropdownWidth}px`;
-      }
-
-      function closeSettingsDropdown() {
-        const icon = document.querySelector('.settings-nav-item .dropdown-icon');
-        if (settingsDropdown) {
-          settingsDropdown.style.display = 'none';
-          settingsDropdown.style.position = '';
-          settingsDropdown.style.top = '';
-          settingsDropdown.style.left = '';
-          settingsDropdown.style.width = '';
-        }
-        if (icon) icon.style.transform = 'rotate(0deg)';
-      }
-
-      function toggleSettingsDropdown() {
-        if (!settingsDropdown) return;
-        const icon = document.querySelector('.settings-nav-item .dropdown-icon');
-        const isOpen = settingsDropdown.style.display === 'flex';
-        if (isOpen) {
-          closeSettingsDropdown();
-          return;
-        }
-        settingsDropdown.style.display = 'flex';
-        if (isMobileNavLayout()) {
-          positionSettingsDropdown();
-        }
-        if (icon) icon.style.transform = 'rotate(180deg)';
-      }
-
       const notesAndFilesNav = document.querySelectorAll('.protocol-nav .protocol-item');
       notesAndFilesNav.forEach((item, idx) => {
         item.addEventListener('click', (e) => {
           e.preventDefault();
           if (item.classList.contains('settings-nav-item')) {
-            toggleSettingsDropdown();
+            const dropdown = document.querySelector('.settings-dropdown');
+            const icon = item.querySelector('.dropdown-icon');
+            if (dropdown.style.display === 'none') {
+              dropdown.style.display = 'flex';
+              icon.style.transform = 'rotate(180deg)';
+            } else {
+              dropdown.style.display = 'none';
+              icon.style.transform = 'rotate(0deg)';
+            }
             return;
           }
-
-          if (secureAccountActive) {
-            exitSecureAccountMode();
-          }
-          closeSettingsDropdown();
-          if (idx === 0) {
-            mode = 'notes';
-            setSidebarActive('notes');
-          }
-          if (idx === 1) {
-            mode = 'files';
-            setSidebarActive('files');
-          }
+          
+          notesAndFilesNav.forEach((el) => {
+            if (!el.classList.contains('settings-nav-item')) {
+              el.classList.remove('active');
+            }
+          });
+          item.classList.add('active');
+          if (idx === 0) mode = 'notes';
+          if (idx === 1) mode = 'files';
           applyMode();
         });
       });
@@ -785,7 +663,8 @@
         notes.push(note);
         activeNoteId = note.id;
         mode = 'notes';
-        setSidebarActive('notes');
+        notesNav.classList.add('active');
+        if (filesNav) filesNav.classList.remove('active');
         renderTabs();
         renderEditorFromActive();
         applyMode();
@@ -795,43 +674,24 @@
         const buttons = toolbar.querySelectorAll('.toolbar-btn');
         const runEditorCommand = (command, value = null) => {
           editor.focus();
-          restoreEditorSelection();
-          if (command === 'formatBlock') {
-            const currentBlock = currentBlockTag();
-            const nextValue = currentBlock === (value || '').toUpperCase() ? 'DIV' : value;
-            document.execCommand(command, false, nextValue);
-          } else {
-            document.execCommand(command, false, value);
-          }
-          saveEditorSelection();
-          saveActiveNoteLocally();
-          updateToolbarState();
+          document.execCommand(command, false, value);
         };
         buttons.forEach((btn) => {
           btn.addEventListener('mousedown', (evt) => {
             evt.preventDefault();
           });
-          btn.addEventListener('click', () => {
-            runEditorCommand(btn.dataset.command, btn.dataset.value || null);
+        });
+        if (buttons[0]) buttons[0].addEventListener('click', () => runEditorCommand('bold'));
+        if (buttons[1]) buttons[1].addEventListener('click', () => runEditorCommand('italic'));
+        if (buttons[2]) buttons[2].addEventListener('click', () => runEditorCommand('insertUnorderedList'));
+        if (buttons[3]) {
+          buttons[3].addEventListener('click', () => {
+            const size = (window.prompt('Enter text size from 1 to 7', '4') || '').trim();
+            if (!/^[1-7]$/.test(size)) return;
+            runEditorCommand('fontSize', size);
           });
-        });
-      }
-
-      ['keyup', 'mouseup', 'input', 'focus', 'blur'].forEach((eventName) => {
-        editor.addEventListener(eventName, () => {
-          if (eventName !== 'blur') saveEditorSelection();
-          if (eventName === 'input') saveActiveNoteLocally();
-          updateToolbarState();
-        });
-      });
-
-      document.addEventListener('selectionchange', () => {
-        const selection = window.getSelection();
-        if (isSelectionInsideEditor(selection)) {
-          saveEditorSelection();
         }
-        updateToolbarState();
-      });
+      }
 
       saveBtn.addEventListener('click', async () => {
         saveBtn.disabled = true;
@@ -853,14 +713,6 @@
         }
       });
 
-      document.addEventListener('keydown', async (event) => {
-        const isSaveShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's';
-        if (!isSaveShortcut) return;
-        event.preventDefault();
-        if (saveBtn.disabled) return;
-        saveBtn.click();
-      });
-
       reloadBtn.addEventListener('click', () => window.location.reload());
 
       importBtn.addEventListener('click', () => {
@@ -875,7 +727,6 @@
         if (!fileList.length) return;
         const note = activeNote();
         if (!note) return;
-        await saveAllNotes();
         
         const form = new FormData();
         form.append('name', lockerName);
@@ -1155,7 +1006,6 @@
 
       function enterSecureAccountMode() {
         secureAccountActive = true;
-        setSidebarActive('settings');
         // Hide notes UI
         if (notesViewHeader) notesViewHeader.style.display = 'none';
         if (notesViewEditor) notesViewEditor.style.display = 'none';
@@ -1181,7 +1031,6 @@
         // Restore right column
         if (rightColFiles) rightColFiles.style.display = '';
         if (rightColSecurity) rightColSecurity.style.display = 'none';
-        setSidebarActive(mode === 'files' ? 'files' : 'notes');
         // Restore correct mode
         applyMode();
       }
@@ -1213,26 +1062,17 @@
         secureAccountLink.addEventListener('click', (e) => {
           e.preventDefault();
           enterSecureAccountMode();
-          closeSettingsDropdown();
+          // Close the dropdown
+          const dropdown = document.querySelector('.settings-dropdown');
+          const icon = document.querySelector('.settings-nav-item .dropdown-icon');
+          if (dropdown) dropdown.style.display = 'none';
+          if (icon) icon.style.transform = 'rotate(0deg)';
         });
       }
-
-      window.addEventListener('resize', () => {
-        if (!settingsDropdown || settingsDropdown.style.display !== 'flex') return;
-        if (isMobileNavLayout()) {
-          positionSettingsDropdown();
-          return;
-        }
-        settingsDropdown.style.position = '';
-        settingsDropdown.style.top = '';
-        settingsDropdown.style.left = '';
-        settingsDropdown.style.width = '';
-      });
 
       if (backToNotesBtn) {
         backToNotesBtn.addEventListener('click', (e) => {
           e.preventDefault();
-          mode = 'notes';
           exitSecureAccountMode();
         });
       }

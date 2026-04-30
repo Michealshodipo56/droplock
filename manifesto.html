@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Read DropLock's privacy policy to understand what data the service handles and how private lockers and transfers work.">
   <title>DropLock - Privacy Policy</title>
   <link rel="icon" type="image/png" href="images/droplock-icon.png">
   <link rel="stylesheet" href="style.css">
@@ -10,92 +11,126 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="privacy-body">
-  <canvas id="bg-canvas"></canvas>
-
-  <div class="privacy-page-wrapper">
-    <nav class="manifesto-nav">
-      <div class="logo">
-        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
-          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
+<body class="void-body">
+  <div class="void-page-wrapper">
+    <nav class="void-nav">
+      <div class="void-logo">
+        <a href="index.html">
+          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="void-logo-img">
         </a>
       </div>
-      <div class="nav-links">
+      <div class="void-nav-links">
         <a href="index.html">TERMINAL</a>
+        <a href="transfer.html">TRANSFER FILES</a>
         <a href="about.html">ABOUT</a>
+        <a href="manifesto.html" class="active">PRIVACY</a>
       </div>
     </nav>
 
-    <main class="privacy-main">
-      <div class="privacy-header">
-        <h1 class="privacy-title">PRIVACY_POLICY</h1>
-        <p class="privacy-date">LAST UPDATED: APRIL 2026</p>
-      </div>
+    <main class="void-main">
+      <header class="void-header">
+        <div class="void-kicker">LAST UPDATED: APRIL 2026</div>
+        <h1 class="void-title">PRIVACY</h1>
+        <div class="void-thick-line"></div>
+        <p class="void-intro">This Privacy Policy explains what information DropLock handles, how that information is used, and the choices you have when using the website and its file transfer and locker features.</p>
+      </header>
 
-      <div class="privacy-content">
-        <section class="privacy-section">
-          <h2>01. DATA COLLECTION</h2>
-          <p>DropLock <strong>does not collect</strong> any personal information. We do not require accounts, registration, or contact details to use our core services. Your usage remains anonymous by default.</p>
-          <ul>
-            <li><strong>No IP Logging:</strong> We do not store or track your IP address.</li>
-            <li><strong>No Cookies:</strong> We do not use tracking cookies or third-party analytics.</li>
-            <li><strong>No Personal Identifiers:</strong> We do not collect names, emails, or phone numbers.</li>
-          </ul>
-        </section>
-
-        <section class="privacy-section">
-          <h2>02. DATA PROTECTION</h2>
-          <p>All data uploaded to DropLock is treated as <strong>hostile</strong>. This means we assume someone is always trying to intercept it, and we protect it accordingly.</p>
-          <div class="protection-callout">
-            <h3>ZERO-KNOWLEDGE ENCRYPTION</h3>
-            <p>Every file and note you save in a Locker is encrypted on your device using your password. Since we never receive your password in plaintext, it is mathematically impossible for us to decrypt or view your data.</p>
+      <div class="void-sections-container">
+        
+        <!-- Section 1 -->
+        <div class="void-section">
+          <div class="void-left-col">
+            <h2>INFORMATION_COLLECTION</h2>
           </div>
-        </section>
+          <div class="void-right-col">
+            <p>DropLock is designed to be usable without creating a traditional account. You can use the service with a locker name and password instead of a profile, username, or public identity.</p>
+            <p>Depending on how you use the service, we may handle the following information:</p>
+            <ul class="void-bullets">
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span>Locker names, password hashes, notes, and files stored in a locker.</span>
+              </li>
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span>Files sent through direct transfer or encrypted code transfer.</span>
+              </li>
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span>Optional recovery email information if you choose to add it to a locker.</span>
+              </li>
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span>Basic technical request data that may be created by the server during operation and troubleshooting.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-        <section class="privacy-section">
-          <h2>03. DATA RETENTION</h2>
-          <p>We believe data that doesn't exist cannot be stolen. Our retention policies are designed to minimize the storage of sensitive information.</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Service</th>
-                <th>Retention Period</th>
-                <th>Storage Method</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Locker Data</td>
-                <td>Indefinite (Until manually deleted)</td>
-                <td>Encrypted Disk Storage</td>
-              </tr>
-              <tr>
-                <td>Direct Transfer</td>
-                <td>Instant (Deleted after download)</td>
-                <td>System RAM</td>
-              </tr>
-              <tr>
-                <td>Encrypted Transfer</td>
-                <td>30 Minutes (Automatic purge)</td>
-                <td>System RAM</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
+        <div class="void-divider"></div>
 
-        <section class="privacy-section">
-          <h2>04. THIRD-PARTIES</h2>
-          <p>DropLock is independent. We do not share data with third-party advertisers, government agencies, or data brokers. Our infrastructure is self-contained and focused on a single mission: <strong>Anonymity.</strong></p>
-        </section>
+        <!-- Section 2 -->
+        <div class="void-section">
+          <div class="void-left-col">
+            <h2>USAGE_AND_SHARING</h2>
+          </div>
+          <div class="void-right-col">
+            <p>We use information only to operate the service you request, including creating lockers, storing notes and files, processing transfers, helping you access your locker, and maintaining site reliability and security.</p>
+            <p>We do not use the service to build advertising profiles, and we do not require a marketing account to use core features.</p>
+            <div class="void-cyan-box" style="margin-top: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              SHARING OF INFORMATION
+            </div>
+            <p>We do not sell your personal information. We may share information only when necessary to run the service, comply with legal obligations, protect the website, or enforce our terms and security controls.</p>
+          </div>
+        </div>
+
+        <div class="void-divider"></div>
+
+        <!-- Section 3 -->
+        <div class="void-section">
+          <div class="void-left-col">
+            <h2>STORAGE_AND_SECURITY</h2>
+          </div>
+          <div class="void-right-col">
+            <p>Locker content is stored until you delete it or remove the locker. Temporary transfer data is kept only for the time needed to complete the transfer flow and is automatically cleaned up after a short period.</p>
+            <p>At the time of this policy, encrypted code transfers are removed automatically after about 5 minutes. Direct transfer session data is also temporary and is not intended for long-term storage.</p>
+            <div class="void-gray-box">
+              <div class="void-gray-title">SECURITY AND ANALYTICS</div>
+              <p>We use technical and operational measures intended to protect stored and transferred data. No system can be guaranteed to be completely secure, so you should avoid uploading information unless you are comfortable with the risks of using an internet-based service.</p>
+              <p style="margin-top: 10px;">DropLock is not built around third-party advertising or account tracking. We do not describe the service as depending on ad-tech profiling to function.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="void-divider"></div>
+
+        <!-- Section 4 -->
+        <div class="void-section">
+          <div class="void-left-col">
+            <h2>YOUR_CHOICES</h2>
+          </div>
+          <div class="void-right-col">
+            <p>You can choose what information you upload, whether to add a recovery email, and whether to keep or delete content in your locker. If you no longer want data stored in a locker, you can remove it from the service.</p>
+            <p>We may update this Privacy Policy from time to time. When we do, we will revise the date at the top of this page so you can see when the latest version became effective.</p>
+          </div>
+        </div>
+
+        <!-- Tech/Server Graphic Area -->
+        <div class="void-tech-graphic">
+          <div class="void-graphic-label">ENCRYPTION_NODE_ALPHA</div>
+        </div>
+
       </div>
 
-      <footer class="privacy-footer">
-        <div class="footer-separator"></div>
-        <p>Transparency is the foundation of trust. For technical details on our encryption protocols, please visit our <a href="about.html">About Page</a>.</p>
+      <!-- Footer (Standard Site Footer Style) -->
+      <footer class="bottom-footer" style="padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 0; background: transparent;">
+        <div class="footer-left"><span class="copyright-icon">©</span> 2026 DROPLOCK. ANONYMOUS_PRECISION.</div>
+        <div class="footer-right">
+          <a href="manifesto.html" class="footer-link">PRIVACY</a>
+        </div>
       </footer>
     </main>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>

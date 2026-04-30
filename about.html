@@ -3,88 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DropLock - About</title>
+  <meta name="description" content="Learn how DropLock works, from private lockers to secure file sharing, with no accounts and minimal friction.">
+  <title>DropLock - How to Use</title>
   <link rel="icon" type="image/png" href="images/droplock-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="about-body">
-  <canvas id="bg-canvas"></canvas>
-
-  <div class="about-page-wrapper">
-    <nav class="manifesto-nav">
-      <div class="logo">
-        <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
-          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="logo-img">
+<body class="grid-body">
+  <div class="grid-bg"></div>
+  
+  <div class="grid-page-wrapper">
+    <!-- Navbar -->
+    <nav class="grid-nav">
+      <div class="grid-logo">
+        <a href="index.html">
+          <img src="images/DropLock_logo-.webp" alt="DROPLOCK" class="grid-logo-img">
         </a>
       </div>
-      <div class="nav-links">
+      <div class="grid-nav-links">
         <a href="index.html">TERMINAL</a>
-        <a href="transfer.html">TRANSFER</a>
+        <a href="transfer.html">TRANSFER FILES</a>
+        <a href="about.html" class="active">ABOUT</a>
         <a href="manifesto.html">PRIVACY</a>
       </div>
     </nav>
 
-    <main class="about-main">
-      <div class="about-hero">
-        <h1 class="about-title">THE_SECURE_TUNNEL</h1>
-        <p class="about-tagline">ANONYMOUS FILE EXCHANGE & ZERO-KNOWLEDGE CRYPTOGRAPHY</p>
-      </div>
-
-      <div class="about-content">
-        <section class="about-section">
-          <h2>WHAT IS DROPLOCK?</h2>
-          <p>DropLock is a high-security, anonymous file exchange platform designed for users who prioritize privacy above everything else. We built DropLock on the principle that <strong>privacy is a human right</strong>, not a feature.</p>
-          <p>Unlike traditional cloud storage, DropLock does not want to know who you are. We don't ask for emails, we don't track IPs for marketing, and we certainly don't store your data in a way that we—or anyone else—can read it.</p>
-        </section>
-
-        <section class="about-section">
-          <h2>HOW IT WORKS</h2>
-          <div class="feature-grid">
-            <div class="feature-item">
-              <h3>01. THE LOCKER</h3>
-              <p>Your own private vault. Create a locker by simply entering a name and a strong password. This locker is your persistent home for notes and sensitive files. Everything inside is encrypted with your password before it leaves your browser.</p>
+    <main class="grid-main">
+      
+      <!-- HERO SECTION -->
+      <section class="grid-hero">
+        <div class="grid-hero-left">
+          <div class="grid-kicker">WELCOME TO DROPLOCK</div>
+          <h1 class="grid-title">ZERO ACCOUNTS.<br><span class="cyan-text">TOTAL PRIVACY.</span></h1>
+          <p class="grid-desc">DropLock is a secure, easy way to store notes and share files without the setup. There are no accounts, no email signups, and we never track who you are. It’s just your data, and only you have the key to open it.</p>
+        </div>
+        <div class="grid-hero-right">
+          <div class="tech-card">
+            <div class="tech-card-header">HOW IT WORKS</div>
+            <p class="tech-card-sub">INSTEAD OF LOGGING INTO A COMPANY'S SYSTEM, DROPLOCK LETS YOU CREATE YOUR OWN PRIVATE SPACES ON THE FLY. IF YOU CLOSE A ROOM AND FORGET THE PASSWORD, NO ONE CAN EVER OPEN IT AGAIN.</p>
+            <div class="tech-image-container">
+              <img src="https://images.unsplash.com/photo-1597838816882-4435b1977fbe?q=80&w=600&auto=format&fit=crop" alt="Hardware Node" class="tech-image">
             </div>
-            <div class="feature-item">
-              <h3>02. DIRECT TRANSFER</h3>
-              <p>Need to send a file to someone right now? Direct Transfer creates an ephemeral link between two devices. Once the receiver downloads the file, the link is destroyed. No traces, no history.</p>
-            </div>
-            <div class="feature-item">
-              <h3>03. ENCRYPTED CODE TRANSFER</h3>
-              <p>Generate a 6-digit secure code, upload your files, and share the code. The receiver enters the code to pull the files. These transfers are held in system RAM and are automatically deleted after 30 minutes. They never touch a hard drive.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="about-section">
-          <h2>THE TECHNOLOGY</h2>
-          <p>DropLock is powered by a high-performance Go backend and a Zero-Knowledge frontend architecture.</p>
-          <ul>
-            <li><strong>AES-256-GCM:</strong> Military-grade encryption for all file payloads.</li>
-            <li><strong>Argon2id:</strong> State-of-the-art key derivation to protect your Locker passwords from brute-force attacks.</li>
-            <li><strong>Memory-Only Storage:</strong> Transfers are kept in RAM, ensuring that even a physical seizure of the server would yield zero usable data.</li>
-            <li><strong>Client-Side Processing:</strong> We offload as much as possible to your browser, so you stay in control of your encryption keys.</li>
-          </ul>
-        </section>
-
-        <section class="about-section mission-section">
-          <h2>OUR MISSION</h2>
-          <p>"To provide a digital safe-haven where information can be exchanged freely and securely, without the prying eyes of corporations or mass surveillance."</p>
-        </section>
-      </div>
-
-      <footer class="about-footer">
-        <div class="footer-separator"></div>
-        <div class="footer-content">
-          <div class="footer-left">© 2026 DROPLOCK // ARCH_4_S2</div>
-          <div class="footer-right">
-            <a href="manifesto.html">PRIVACY_POLICY</a>
-            <a href="index.html">BACK_TO_TERMINAL</a>
           </div>
         </div>
+      </section>
+
+      <!-- TERMINAL (HOMEPAGE) SECTION -->
+      <section class="grid-section">
+        <div class="bg-watermark" style="font-size: 8rem; top: 10px;">HOME</div>
+        <div class="grid-row-split">
+          <div class="grid-col-left">
+            <div class="hacker-box">
+              <div class="box-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>THE TERMINAL</span>
+              </div>
+              <h2 class="box-title">THE HOMEPAGE</h2>
+              <p class="box-text">The homepage looks like an old-school computer terminal. This is your main gateway into DropLock. You won't find a "Sign Up" button here. Instead, you just type in any name you want to create a space.</p>
+            </div>
+          </div>
+          <div class="grid-col-right">
+            <h2 class="section-title">HOW TO ENTER<br>A LOCKER</h2>
+            <p class="section-text">To get started, follow these simple steps right from the Terminal homepage:</p>
+            <ul class="numbered-list">
+              <li><span class="cyan-num">01</span> <strong>LOCKER ID:</strong> Type any word you want into the top box (like "MySecretProject"). Think of this as the name of your room.</li>
+              <li><span class="cyan-num">02</span> <strong>PASSWORD:</strong> Type a strong password into the bottom box. Since we do not save your password, you must remember it!</li>
+              <li><span class="cyan-num">03</span> <strong>ACCESS:</strong> Click the card at the bottom that flashes "SYSTEM UNLOCKED". If the room doesn't exist, it creates it instantly. If it does exist, it opens!</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOCKER PAGE SECTION -->
+      <section class="grid-section locker-section">
+        <div class="bg-watermark">LOCKER</div>
+        <div class="grid-row-split reverse-mobile">
+          <div class="grid-col-left">
+            <h2 class="section-title">INSIDE YOUR<br>PRIVATE LOCKER</h2>
+            <p class="section-text">Once you unlock your space, you enter your Private Locker. This is your personal dashboard for working, saving files, and writing notes safely.</p>
+            <ul class="numbered-list" style="margin-bottom: 20px;">
+              <li><span class="cyan-num">A</span> <strong>THE TEXT EDITOR:</strong> The large typing area in the middle is where you can write notes, paste code, or type essays. It automatically encrypts your words.</li>
+              <li><span class="cyan-num">B</span> <strong>THE FILE VAULT:</strong> Look at the bottom area that says "DRAG & DROP ASSETS". You can drag pictures, videos, or documents here to save them to your locker forever.</li>
+              <li><span class="cyan-num">C</span> <strong>THE SAVE BUTTON:</strong> At the top of your screen, there is a "SAVE" button. Always click this before you leave to make sure your latest notes and files are locked away!</li>
+            </ul>
+          </div>
+          
+          <div class="grid-col-right">
+            <div class="hacker-box dark-box">
+              <div class="box-header-flex">
+                <h2 class="box-title no-margin">LOCKER TOOLS</h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <p class="box-text">Besides saving and writing, the Locker has a few extra tools to protect you:</p>
+              <div class="pill-tags">
+                <span class="pill cyan-pill">ACCOUNT RECOVERY</span>
+                <span class="pill cyan-pill">STEALTH MODE</span>
+                <span class="pill cyan-pill">RELOAD SYNC</span>
+              </div>
+              <p class="box-text" style="margin-top: 20px; font-size: 0.9rem;"><strong>Stealth Mode:</strong> In the navigation bar, there is a small icon that looks like an eye. Clicking this will blur your entire screen—perfect if you are in a public cafe and someone walks up behind you!<br><br><strong>Account Recovery:</strong> We can't reset passwords, but if you go to your Locker settings, you can attach an email address to get a secret code in case you ever forget your password.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRANSFER PROTOCOL SECTION (2 WAYS) -->
+      <section class="grid-section transfer-section">
+        <div class="transfer-header">
+          <h2>THE TWO FILE TRANSFER METHODS</h2>
+          <div class="cyan-line"></div>
+          <p style="color: rgba(255,255,255,0.6); max-width: 600px; margin: 20px auto 0;">DropLock includes an entirely separate area just for sending files to other people. Click "TRANSFER FILES" at the top of any page to get started. Here is how both methods work:</p>
+        </div>
+        
+        <div class="grid-row-split" style="gap: 40px;">
+          <!-- METHOD 1 -->
+          <div class="tech-card" style="flex: 1;">
+            <div class="tech-card-header">METHOD 01 : DIRECT P2P TRANSFER</div>
+            <p class="box-text">This method connects your computer directly to your friend's computer. It is the fastest and safest because the file never touches our servers.</p>
+            <ul class="numbered-list">
+              <li><span class="cyan-num">1</span> <strong>OPEN RADAR:</strong> Both you and your friend must go to the Transfer page and make sure "DIRECT P2P" is selected on the left menu.</li>
+              <li><span class="cyan-num">2</span> <strong>SCAN:</strong> Click the large "SCAN" button in the center. Your radar will spin, and you will see your friend's computer pop up.</li>
+              <li><span class="cyan-num">3</span> <strong>CONNECT:</strong> Click on your friend's name. A box will open asking you to accept the connection.</li>
+              <li><span class="cyan-num">4</span> <strong>SEND:</strong> Drag and drop your files. It beams directly to them!</li>
+            </ul>
+          </div>
+          
+          <!-- METHOD 2 -->
+          <div class="tech-card" style="flex: 1;">
+            <div class="tech-card-header">METHOD 02 : SECURE 6-DIGIT CODE</div>
+            <p class="box-text">Use this method if your friend is not online right now. You upload the file to our temporary RAM servers, and they download it later.</p>
+            <ul class="numbered-list">
+              <li><span class="cyan-num">1</span> <strong>SELECT ENCRYPTED:</strong> On the Transfer page, click the "ENCRYPTED" option on the left menu sidebar.</li>
+              <li><span class="cyan-num">2</span> <strong>UPLOAD FILE:</strong> A box will appear. Drag your file into the box to start uploading.</li>
+              <li><span class="cyan-num">3</span> <strong>GET THE CODE:</strong> The system will give you a bright cyan 6-digit code (e.g., 842-198). Send this code to your friend in a text message.</li>
+              <li><span class="cyan-num">4</span> <strong>THEY DOWNLOAD:</strong> Your friend opens DropLock, selects "ENCRYPTED", types in that 6-digit code, and downloads the file. Wait—it gets better: the file is automatically deleted forever after 5 minutes!</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEVELOPER SECTION -->
+      <section class="grid-section dev-section">
+        <div class="dev-kicker">THE_CREATOR</div>
+        
+        <div class="grid-row-split dev-row">
+          <div class="grid-col-left">
+            <div class="portrait-container">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=500&auto=format&fit=crop&grayscale=1" alt="Shodipo Micheal" class="portrait-img">
+            </div>
+          </div>
+          <div class="grid-col-right dev-details">
+            <h2 class="section-title">SHODIPO MICHEAL</h2>
+            <p class="quote">"DropLock is my contribution to the fight for digital freedom. In an age where every click is tracked and every message is saved, building simple tools that give everyday people total privacy is no longer just an option—it is a necessity."</p>
+            
+            <div class="stats-table">
+              <div class="stat-row">
+                <div class="stat-label">FOCUS</div>
+                <div class="stat-val cyan-text">CRYPTOGRAPHIC FREEDOM</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label">LOCATION</div>
+                <div class="stat-val cyan-text">THE DIGITAL FRONTIER</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label">PLATFORM</div>
+                <div class="stat-val cyan-text">OPEN-SOURCE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="bottom-footer" style="padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 80px; background: transparent;">
+        <div class="footer-left"><span class="copyright-icon">©</span> 2026 DROPLOCK. EXECUTING SECURE CONNECTIONS...</div>
+        <div class="footer-right">
+          <a href="manifesto.html" class="footer-link">PRIVACY</a>
+        </div>
       </footer>
+
     </main>
   </div>
 
