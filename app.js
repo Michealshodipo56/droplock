@@ -8,10 +8,26 @@ if (canvas) {
   H = canvas.height;
 }
 
+// --- THEME PERSISTENCE (saved across all pages via localStorage) ---
+const THEME_KEY = 'droplock.theme';
+
+// Restore saved theme on every page load
+(function applyStoredTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+  }
+})();
+
 const themeToggle = document.getElementById('theme-toggle');
 if (themeToggle) {
   themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
+    if (document.body.classList.contains('light-mode')) {
+      localStorage.setItem(THEME_KEY, 'light');
+    } else {
+      localStorage.setItem(THEME_KEY, 'dark');
+    }
     updateLogo();
   });
 }
@@ -23,26 +39,31 @@ function updateLogo() {
   if (document.body.classList.contains('light-mode')) {
     logoImg.src = 'images/droplock-black-logo.webp';
   } else {
-    // Default logo for dark/stealth modes
+    // Default logo for dark mode
     logoImg.src = 'images/DropLock_logo-.webp';
   }
 }
 
+// Apply logo when page loads (after DOM is ready)
+document.addEventListener('DOMContentLoaded', updateLogo);
+
+// --- PAGE TRANSITION: fade-out before navigating ---
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('a[href]').forEach(link => {
+    const href = link.getAttribute('href');
+    // Only intercept same-origin, non-hash, non-external links
+    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto')) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = href; }, 200);
+    });
+  });
+});
+
+
 function getThemeColors() {
   const isLight = document.body.classList.contains('light-mode');
-  const isStealth = document.body.classList.contains('stealth-mode');
-
-  if (isStealth) {
-    return {
-      line: 'rgba(212, 0, 255, 0.3)',
-      dotBright: 'rgba(212, 0, 255, 0.95)',
-      dotDim: 'rgba(100, 0, 120, 0.5)',
-      bg: '#050505',
-      cyan: 'rgba(212, 0, 255, 0.4)',
-      cyanBright: 'rgba(212, 0, 255, 0.8)'
-    };
-  }
-  
   return {
     line: isLight ? '#333333' : '#c8c8c8',
     dotBright: isLight ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.95)',
@@ -735,43 +756,7 @@ initRecoveryModal();
   });
 })();
 
-// --- Stealth Mode Toggle (Local-Only Vault) ---
-const stealthToggle = document.getElementById('stealth-toggle');
-const vaultTitle = document.getElementById('vault-main-title');
-const statusDisplay = document.getElementById('status-display');
 
-if (stealthToggle && vaultTitle) {
-  stealthToggle.addEventListener('click', () => {
-    // Remove light mode if entering stealth
-    document.body.classList.remove('light-mode');
-    const isStealth = document.body.classList.toggle('stealth-mode');
-    updateLogo();
-    
-    // Select the "How to use" items to update them
-    const howToContent = document.querySelectorAll('.howto-content');
-    
-    if (isStealth) {
-      vaultTitle.innerText = 'LOCAL_VAULT';
-      if (statusDisplay) statusDisplay.innerText = 'OFFLINE_SECURITY_READY';
-      
-      if (howToContent.length >= 3) {
-        howToContent[0].innerHTML = '<h3>LOCK</h3><p>Create a <strong>local-only vault</strong> bound to this browser profile and device.</p>';
-        howToContent[1].innerHTML = '<h3>WORK_OFFLINE</h3><p>Stealth Mode keeps your activity in a <strong>network-isolated session</strong> while you prepare data.</p>';
-        howToContent[2].innerHTML = '<h3>PURGE</h3><p>Close the session to clear temporary state and leave <strong>no cloud copy</strong> behind.</p>';
-      }
-    } else {
-      vaultTitle.innerText = 'ACCESS_VAULT';
-      if (statusDisplay) statusDisplay.innerText = 'AWAITING_INPUT';
-      
-      if (howToContent.length >= 3) {
-        howToContent[0].innerHTML = '<h3>CREATE</h3><p>Enter any <strong>unique name</strong> to open your own private locker instantly.</p>';
-        howToContent[1].innerHTML = '<h3>PROTECT</h3><p>Set a <strong>password</strong>. We never store this; used only to encrypt your data packets.</p>';
-        howToContent[2].innerHTML = '<h3>STORE</h3><p>Save <strong>text and files</strong> securely. Access them from anywhere via the encrypted tunnel.</p>';
-      }
-    }
-
-  });
-}
 
 
 // --- Intro Tour Logic ---
@@ -864,12 +849,7 @@ const tourSteps = [
     text: 'This is the core functional unit. Enter your locker identifier here to establish an ephemeral, encrypted tunnel. Your data never persists between sessions.', 
     position: 'right' 
   },
-  { 
-    selector: '#stealth-toggle', 
-    title: 'STEALTH MODE', 
-    text: 'Engage stealth protocols to switch to a localized, offline vault environment for maximum privacy.', 
-    position: 'bottom' 
-  },
+
   { 
     selector: '#recovery-toggle', 
     title: 'RECOVERY PROTOCOL', 
@@ -1031,6 +1011,7 @@ const encDropZone = document.getElementById('enc-drop-zone');
 const encStagedContainer = document.getElementById('enc-staged-container');
 
 const encGenerateBtn = document.getElementById('enc-generate-btn');
+const encGenerateError = document.getElementById('enc-generate-error');
 const encCodeDisplayWrap = document.getElementById('enc-code-display-wrap');
 const encGeneratedCode = document.getElementById('enc-generated-code');
 const encCopyBtn = document.getElementById('enc-copy-btn');
@@ -1315,7 +1296,6 @@ function handleEncryptedFiles(files) {
   
   if (encStagedFiles.length > 0) {
     if (encGenerateBtn) {
-      encGenerateBtn.disabled = false;
       encGenerateBtn.innerText = 'GENERATE CODE & STAGE FILES';
       encCodeDisplayWrap.classList.add('is-hidden');
     }
@@ -1324,6 +1304,7 @@ function handleEncryptedFiles(files) {
 
 function renderEncryptedStagedFiles() {
   if (!encStagedContainer) return;
+  if (encGenerateError) encGenerateError.innerText = '';
   encStagedContainer.innerHTML = '';
   
   encStagedFiles.forEach((file, index) => {
@@ -1347,7 +1328,6 @@ function renderEncryptedStagedFiles() {
       encStagedFiles.splice(idx, 1);
       renderEncryptedStagedFiles();
       if (encStagedFiles.length === 0) {
-        encGenerateBtn.disabled = true;
         encGenerateBtn.innerText = 'GENERATE CODE';
         encCodeDisplayWrap.classList.add('is-hidden');
       }
@@ -1358,7 +1338,17 @@ function renderEncryptedStagedFiles() {
 }
 
 async function generateEncryptedCode() {
-  if (encStagedFiles.length === 0 || !mySessionId) return;
+  if (encGenerateError) encGenerateError.innerText = '';
+
+  if (encStagedFiles.length === 0) {
+    if (encGenerateError) {
+      encGenerateError.innerText = 'PLEASE UPLOAD AT LEAST ONE FILE BEFORE GENERATING A CODE.';
+      encGenerateError.style.color = '#ff4a4a';
+    }
+    return;
+  }
+  
+  if (!mySessionId) return;
 
   encGenerateBtn.disabled = true;
   encGenerateBtn.innerText = 'GENERATING CODE...';

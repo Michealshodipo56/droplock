@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Send files with DropLock using direct or encrypted transfer modes built for private, account-free sharing.">
   <title>DropLock - Secure Transfer</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="icon" type="image/png" href="images/droplock-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,7 +191,8 @@
               </div>
               <p class="enc-desc">Generate an 8-character code to share securely with the receiver.</p>
               
-              <button id="enc-generate-btn" class="btn-outline enc-action-btn" type="button" disabled>GENERATE CODE</button>
+              <button id="enc-generate-btn" class="btn-outline enc-action-btn" type="button">GENERATE CODE</button>
+              <div id="enc-generate-error" class="recovery-error" style="margin-top: 8px;"></div>
               
               <div id="enc-code-display-wrap" class="enc-code-display-wrap is-hidden">
                 <div class="enc-code-box">
