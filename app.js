@@ -769,7 +769,7 @@ const tourNextBtn = document.getElementById('tour-next');
 const tourSkipBtn = document.getElementById('tour-skip');
 
 // --- Identity Logic ---
-const myDeviceNameEl = document.getElementById('my-device-name');
+const myDeviceNameEls = document.querySelectorAll('[data-my-device-name]');
 const identityPrefixes = ['NODE', 'TERMINAL', 'VAULT', 'LINK', 'GATEWAY', 'CORE'];
 const DEVICE_NAME_STORAGE_KEY = 'droplock.deviceName';
 
@@ -794,8 +794,10 @@ function getOrCreateDeviceName() {
 
 const myDeviceName = getOrCreateDeviceName();
 
-if (myDeviceNameEl) {
-    myDeviceNameEl.innerText = myDeviceName;
+if (myDeviceNameEls.length) {
+  myDeviceNameEls.forEach((el) => {
+    el.innerText = myDeviceName;
+  });
 }
 
 // Use explicitly set URL or default to the separated backend running on port 8080

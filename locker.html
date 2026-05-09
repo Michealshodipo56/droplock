@@ -59,33 +59,35 @@
           <h2 id="vault-id-display" class="sidebar-title">NAME</h2>
         </div>
 
-        <nav class="protocol-nav">
-          <a href="#" class="protocol-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            NOTES
-          </a>
-          <a href="#" class="protocol-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            FILES
-          </a>
-          <a href="#" class="protocol-item settings-nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
-            SETTINGS
-            <i class="fas fa-chevron-down dropdown-icon" style="margin-left: auto; font-size: 0.8rem; transition: transform 0.2s;"></i>
-          </a>
-          <div class="settings-dropdown" style="display: none; flex-direction: column; padding: 4px 0; background: rgba(0, 0, 0, 0.15);">
-            <a href="#" class="dropdown-item"><i class="fas fa-shield-halved icon-fixed"></i> SECURE ACCOUNT</a>
-            <a href="#" class="dropdown-item"><i class="fas fa-key icon-fixed"></i> CHANGE PASSWORD</a>
-            <a href="#" class="dropdown-item" style="color: #ff4a4a;"><i class="fas fa-trash-alt icon-fixed"></i> DELETE ACCOUNT</a>
-          </div>
-        </nav>
+        <div class="locker-sidebar-nav-row">
+          <nav class="protocol-nav">
+            <a href="#" class="protocol-item active">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              NOTES
+            </a>
+            <a href="#" class="protocol-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              FILES
+            </a>
+            <a href="#" class="protocol-item settings-nav-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="18" y1="16" x2="22" y2="16"></line></svg>
+              SETTINGS
+              <i class="fas fa-chevron-down dropdown-icon" style="margin-left: auto; font-size: 0.8rem; transition: transform 0.2s;"></i>
+            </a>
+            <div class="settings-dropdown" style="display: none; flex-direction: column; padding: 4px 0; background: rgba(0, 0, 0, 0.15);">
+              <a href="#" class="dropdown-item"><i class="fas fa-shield-halved icon-fixed"></i> SECURE ACCOUNT</a>
+              <a href="#" class="dropdown-item"><i class="fas fa-key icon-fixed"></i> CHANGE PASSWORD</a>
+              <a href="#" class="dropdown-item" style="color: #ff4a4a;"><i class="fas fa-trash-alt icon-fixed"></i> DELETE ACCOUNT</a>
+            </div>
+          </nav>
 
-        <!-- Theme Toggle at bottom of sidebar -->
-        <div style="margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border-color);">
-          <button id="theme-toggle" style="display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 1px; width: 100%; padding: 8px 0; transition: color 0.2s;" title="Toggle Theme">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.82 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.496 1.508 1.333 1.508 2.316V18"></path></svg>
-            TOGGLE THEME
-          </button>
+          <!-- Theme Toggle at bottom of sidebar -->
+          <div class="locker-theme-toggle-wrap" style="margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border-color);">
+            <button id="theme-toggle" class="locker-theme-toggle" style="display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 1px; width: 100%; padding: 8px 0; transition: color 0.2s;" title="Toggle Theme">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.82 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.496 1.508 1.333 1.508 2.316V18"></path></svg>
+              <span class="locker-theme-toggle-label">TOGGLE THEME</span>
+            </button>
+          </div>
         </div>
 
 
@@ -295,10 +297,57 @@
       editor.contentEditable = 'true';
       editor.setAttribute('data-placeholder', 'Starts writing now...');
       editor.style.whiteSpace = 'pre-wrap';
+      editor.style.maxWidth = '100%';
+      editor.style.overflowX = 'hidden';
+      editor.style.overflowWrap = 'anywhere';
+      editor.style.wordBreak = 'break-word';
       editor.style.overflowY = 'auto';
       editor.style.border = 'none';
       editor.style.outline = 'none';
       editor.innerHTML = '';
+
+      function insertPlainTextAtCursor(target, text) {
+        const selection = window.getSelection();
+        const normalizedText = (text || '').replace(/\r\n?/g, '\n');
+        if (!selection || selection.rangeCount === 0 || !target.contains(selection.anchorNode)) {
+          target.focus();
+          document.execCommand('insertText', false, normalizedText);
+          return;
+        }
+
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const lines = normalizedText.split('\n');
+        const fragment = document.createDocumentFragment();
+
+        lines.forEach((line, index) => {
+          if (index > 0) fragment.appendChild(document.createElement('br'));
+          if (line) {
+            fragment.appendChild(document.createTextNode(line));
+          }
+        });
+
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+
+        selection.removeAllRanges();
+        const nextRange = document.createRange();
+        if (lastNode) {
+          nextRange.setStartAfter(lastNode);
+        } else {
+          nextRange.selectNodeContents(target);
+          nextRange.collapse(false);
+        }
+        nextRange.collapse(true);
+        selection.addRange(nextRange);
+      }
+
+      editor.addEventListener('paste', (event) => {
+        event.preventDefault();
+        const pastedText = event.clipboardData?.getData('text/plain') || '';
+        insertPlainTextAtCursor(editor, pastedText);
+      });
+
       if (oldTextarea && oldTextarea.parentNode) oldTextarea.parentNode.replaceChild(editor, oldTextarea);
 
       const allFilesBoard = document.createElement('div');
