@@ -77,9 +77,6 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-body.home-page {
-  overflow-x: hidden;
-}
 
 /* Canvas Background */
 #bg-canvas {
@@ -479,57 +476,6 @@ body.home-page {
   flex-shrink: 0;
 }
 
-@media (min-width: 901px) {
-  body.home-page {
-    overflow-y: hidden;
-  }
-
-  .home-page .layout-wrapper {
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100vh;
-    gap: clamp(8px, 1.5vh, 16px);
-  }
-
-  .home-page .top-nav {
-    padding-bottom: 10px;
-  }
-
-  .home-page .main-content {
-    padding: clamp(4px, 1vh, 10px) 0;
-  }
-
-  .home-page .main-row {
-    align-items: stretch;
-    gap: clamp(16px, 2vw, 28px);
-  }
-
-  .home-page .vault-card {
-    padding: clamp(20px, 3vh, 40px) clamp(24px, 3vw, 40px);
-  }
-
-  .home-page .howto-card {
-    padding: clamp(18px, 2.4vh, 24px);
-    gap: clamp(12px, 1.8vh, 16px);
-  }
-
-  .home-page .howto-list {
-    gap: clamp(14px, 1.8vh, 18px);
-  }
-
-  .home-page .status-indicator,
-  .home-page .action-row {
-    margin-bottom: clamp(16px, 2vh, 24px);
-  }
-
-  .home-page .tags-container {
-    margin-top: clamp(10px, 1.4vh, 16px);
-  }
-
-  .home-page .bottom-footer {
-    padding-top: clamp(10px, 1.2vh, 14px);
-  }
-}
 
 .footer-left {
   display: flex;
