@@ -95,7 +95,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 2vw, 24px);
+  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 2vw, 24px) 0;
   gap: clamp(12px, 2vh, 24px);
 }
 
@@ -191,13 +191,12 @@ body {
 
 /* Main Content */
 .main-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 0;
-  padding: clamp(8px, 1.5vh, 16px) 0;
+  padding: clamp(24px, 4vh, 48px) 0 clamp(8px, 1.5vh, 16px);
   width: 100%;
 }
 
@@ -470,7 +469,7 @@ body {
   align-items: center;
   border-top: 1px solid var(--border-color);
   padding-top: clamp(12px, 1.5vh, 16px);
-  font-size: 0.75rem; /* Increased from 0.65rem */
+  font-size: 0.75rem;
   color: var(--text-dim);
   letter-spacing: 1px;
   flex-shrink: 0;
@@ -653,7 +652,7 @@ body {
   }
 
   .layout-wrapper {
-    padding: 16px;
+    padding: 16px 16px 0;
     height: auto;
     min-height: 100vh;
   }
