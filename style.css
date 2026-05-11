@@ -93,10 +93,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 2vw, 24px) 0;
-  gap: clamp(12px, 2vh, 24px);
+  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 2vw, 24px);
+  gap: clamp(8px, 1.5vh, 16px);
 }
 
 /* Header */
@@ -195,6 +193,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  flex: 1; /* Added flex: 1 to ensure it fills available space */
   min-height: 0;
   padding: clamp(24px, 4vh, 48px) 0 clamp(8px, 1.5vh, 16px);
   width: 100%;
@@ -468,7 +467,7 @@ body {
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--border-color);
-  padding-top: clamp(12px, 1.5vh, 16px);
+  padding: clamp(12px, 1.5vh, 16px) 0;
   font-size: 0.75rem;
   color: var(--text-dim);
   letter-spacing: 1px;
@@ -652,9 +651,8 @@ body {
   }
 
   .layout-wrapper {
-    padding: 16px 16px 0;
+    padding: 16px;
     height: auto;
-    min-height: 100vh;
   }
 
   .top-nav {
@@ -673,7 +671,11 @@ body {
   .main-content {
     margin-top: 0;
     padding-top: 0;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
+  }
+
+  .main-row {
+    flex-direction: column;
   }
 
   .vault-card {
@@ -737,7 +739,7 @@ body {
   height: 100%;
   background: var(--overlay-bg);
   backdrop-filter: blur(8px);
-  display: flex;
+  display: none; /* Changed from display: flex to prevent space issues */
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -749,6 +751,7 @@ body {
 .modal-overlay.active {
   opacity: 1;
   visibility: visible;
+  display: flex; /* Ensure it shows up as flex when active */
 }
 
 .modal-content {
@@ -826,12 +829,14 @@ body {
   z-index: 2000;
   opacity: 0;
   visibility: hidden;
+  display: none; /* Changed to display: none */
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
 .tour-overlay.active {
   opacity: 1; 
   visibility: visible;
+  display: block; /* Show when active */
   pointer-events: auto;
   background: transparent; /* Changed from var(--overlay-bg) to allow spotlight */
 }
@@ -869,6 +874,7 @@ body {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
   opacity: 0;
   visibility: hidden;
+  display: none; /* Changed to display: none */
   transition: opacity 0.4s ease, transform 0.4s ease, top 0.4s ease, left 0.4s ease;
   backdrop-filter: blur(5px);
   transform: translateY(20px);
@@ -876,6 +882,7 @@ body {
 .tour-tooltip.active {
   opacity: 1;
   visibility: visible;
+  display: block; /* Show when active */
   transform: translateY(0);
 }
 
@@ -908,7 +915,7 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
-  display: flex;
+  display: none; /* Changed to display: none */
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -920,6 +927,7 @@ body {
 .glassmorphism-overlay.active {
   opacity: 1;
   visibility: visible;
+  display: flex; /* Show when active */
 }
 
 .glassmorphism-panel {
@@ -4461,6 +4469,409 @@ body.light-mode .dropzone-icon {
   .void-title { font-size: 2.2rem; }
   .void-section { flex-direction: column; gap: 20px; }
   .void-footer { flex-direction: column; gap: 30px; align-items: flex-start; }
+}
+
+/* =========================================================
+   PRIVACY VAULT PAGE DESIGN
+   ========================================================= */
+
+.privacy-vault-body {
+  background: #000;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.privacy-grid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(0, 229, 255, 0.12), transparent 26%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    #000;
+  background-size: auto, 42px 42px, 42px 42px, auto;
+}
+
+.privacy-page-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.privacy-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 2px solid var(--cyan);
+}
+
+.privacy-logo-img {
+  height: 32px;
+  filter: brightness(1.5);
+}
+
+.privacy-nav-links {
+  display: flex;
+  gap: 34px;
+}
+
+.privacy-nav-links a {
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.privacy-nav-links a:hover,
+.privacy-nav-links a.active {
+  color: var(--cyan);
+}
+
+.privacy-nav-links a.active {
+  border-bottom: 2px solid var(--cyan);
+  padding-bottom: 4px;
+}
+
+.privacy-main {
+  padding: 70px 0 0;
+}
+
+.privacy-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 56px;
+  align-items: stretch;
+  padding-bottom: 70px;
+}
+
+.privacy-kicker {
+  display: inline-block;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1.4px;
+  padding: 5px 10px;
+  margin-bottom: 24px;
+}
+
+.privacy-vault-body .privacy-title {
+  color: #fff;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  max-width: 760px;
+  margin: 0 0 26px;
+}
+
+.privacy-vault-body .privacy-intro {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1.12rem;
+  line-height: 1.7;
+  max-width: 650px;
+}
+
+.privacy-signal-panel {
+  border: 1px solid rgba(0, 229, 255, 0.32);
+  background: linear-gradient(160deg, rgba(0, 229, 255, 0.12), rgba(255, 255, 255, 0.035));
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.privacy-signal-panel::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.privacy-signal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 1.4px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 28px;
+}
+
+.privacy-signal-header strong {
+  color: var(--cyan);
+}
+
+.privacy-signal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.privacy-signal-grid div {
+  min-height: 104px;
+  padding: 18px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.privacy-signal-grid div:nth-child(2n) {
+  border-right: 0;
+}
+
+.privacy-signal-grid div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.privacy-signal-grid span {
+  display: block;
+  color: rgba(255, 255, 255, 0.48);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.privacy-signal-grid strong {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.privacy-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.privacy-panel,
+.privacy-policy-card,
+.privacy-control-strip {
+  background: rgba(0, 0, 0, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.privacy-panel {
+  padding: 30px;
+}
+
+.privacy-panel-primary {
+  border-color: rgba(0, 229, 255, 0.38);
+}
+
+.privacy-panel-label {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 22px;
+}
+
+.privacy-check-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.privacy-check-list li {
+  color: rgba(255, 255, 255, 0.82);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 15px 0 15px 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.privacy-check-list li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.privacy-check-list li::before {
+  content: ">";
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.privacy-check-list.muted li {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.privacy-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 48px;
+}
+
+.privacy-policy-card {
+  padding: 26px 22px;
+  min-height: 260px;
+}
+
+.privacy-card-num {
+  display: block;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 28px;
+}
+
+.privacy-policy-card h2 {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  margin: 0 0 14px;
+}
+
+.privacy-policy-card p {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.privacy-control-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+  padding: 26px 30px;
+  border-color: rgba(0, 229, 255, 0.24);
+}
+
+.privacy-control-strip span {
+  display: block;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.privacy-control-strip p {
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.privacy-return-link {
+  flex: 0 0 auto;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+  padding: 13px 16px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.privacy-return-link:hover {
+  background: rgba(0, 229, 255, 0.12);
+  color: #fff;
+}
+
+.privacy-footer {
+  padding: 40px 0 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 56px;
+  background: transparent;
+}
+
+@media (max-width: 980px) {
+  .privacy-hero,
+  .privacy-split {
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-policy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .privacy-page-shell {
+    padding: 0 20px;
+  }
+
+  .privacy-nav {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .privacy-nav-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+
+  .privacy-nav-links a {
+    font-size: 0.68rem;
+  }
+
+  .privacy-main {
+    padding-top: 48px;
+  }
+
+  .privacy-vault-body .privacy-title {
+    font-size: 2.45rem;
+    letter-spacing: -1px;
+  }
+
+  .privacy-signal-panel,
+  .privacy-panel,
+  .privacy-control-strip {
+    padding: 22px;
+  }
+
+  .privacy-signal-grid,
+  .privacy-policy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-signal-grid div,
+  .privacy-signal-grid div:nth-child(2n),
+  .privacy-signal-grid div:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .privacy-signal-grid div:last-child {
+    border-bottom: 0;
+  }
+
+  .privacy-policy-card {
+    min-height: auto;
+  }
+
+  .privacy-control-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .privacy-return-link {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* =========================================================
