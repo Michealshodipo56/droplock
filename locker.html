@@ -21,8 +21,9 @@
         return;
       }
       // Default backend (override with ?api=... or localStorage key droplock.apiBaseUrl)
-      window.__DROPLOCK_API_BASE_URL =
-        window.__DROPLOCK_API_BASE_URL || 'https://droplock-backend-vesm.onrender.com';
+      window.__DROPLOCK_API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:8080'
+        : 'https://droplock-backend-vesm.onrender.com';
     })();
   </script>
 </head>
@@ -196,7 +197,7 @@
               <div class="tip-icon"><i class="fas fa-clock"></i></div>
               <div class="tip-text">
                 <strong>CODE EXPIRY</strong>
-                <p>Recovery codes expire after 10 minutes for maximum security.</p>
+                <p>Recovery codes expire after 5 minutes for maximum security.</p>
               </div>
             </div>
             <div class="security-tip-item">

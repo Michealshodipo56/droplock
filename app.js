@@ -293,7 +293,19 @@ function initRecoveryModal() {
     }, 100);
   }
 
+  let lockoutLockerName = null; // set when recovery modal is triggered by a lockout
+
   function closeRecoveryModal() {
+    // If this modal was opened due to a lockout, reset the fail counter
+    // so the user gets a fresh 7 attempts when they go back
+    if (lockoutLockerName) {
+      fetch(apiUrl('/api/locker/reset-fails'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: lockoutLockerName })
+      }).catch(() => {});
+      lockoutLockerName = null;
+    }
     recoveryModal.classList.remove('active');
   }
 
@@ -631,7 +643,35 @@ initRecoveryModal();
           body: JSON.stringify({ name: pendingLockerName, password })
         });
         if (!res.ok) {
-          showError('ERROR: INVALID_PASSWORD');
+          if (res.status === 429) {
+            let isLocked = false;
+            try {
+              const errBody = await res.json();
+              isLocked = errBody.locked === true;
+            } catch (_) {}
+
+            if (isLocked) {
+              // Close access modal and open recovery modal with name pre-filled
+              lockoutLockerName = pendingLockerName; // remember for counter reset on close
+              hideAccessModal();
+              const recoveryModal = document.getElementById('recovery-modal');
+              const nameInput = document.getElementById('recovery-locker-name');
+              // Open recovery modal (resetModal runs inside openModal, clearing inputs)
+              if (recoveryModal) {
+                recoveryModal.classList.add('active');
+              }
+              // Set the locker name AFTER the modal is open
+              if (nameInput) {
+                nameInput.value = pendingLockerName;
+                nameInput.focus();
+              }
+              return;
+            } else {
+              showError('ERROR: TOO_MANY_ATTEMPTS. USE RECOVER ACCOUNT OPTION.');
+            }
+          } else {
+            showError('ERROR: INVALID_PASSWORD');
+          }
           submitAccessBtn.disabled = false;
           submitAccessBtn.innerText = 'UNLOCK';
           return;

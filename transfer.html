@@ -12,7 +12,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script>window.__DROPLOCK_API_BASE_URL = 'https://droplock-backend-vesm.onrender.com';</script>
+  <script>
+    window.__DROPLOCK_API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+      ? 'http://localhost:8080' 
+      : 'https://droplock-backend-vesm.onrender.com';
+  </script>
 </head>
 <body class="transfer-page">
 
