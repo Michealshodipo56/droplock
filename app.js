@@ -701,8 +701,12 @@ initRecoveryModal();
         sessionStorage.setItem(`droplock.lockerPassword:${pendingLockerName}`, password);
       } catch (e) {}
       saveToRecentVaults(pendingLockerName);
-      hideAccessModal();
-      window.location.href = `locker.html?name=${encodeURIComponent(pendingLockerName)}`;
+      
+      // Add page-exit class for smooth transition and avoid showing homepage
+      document.body.classList.add('page-exit');
+      setTimeout(() => {
+        window.location.href = `locker.html?name=${encodeURIComponent(pendingLockerName)}`;
+      }, 200);
     } catch (err) {
       showError('ERROR: BACKEND_UNAVAILABLE');
       submitAccessBtn.disabled = false;
@@ -2096,8 +2100,8 @@ document.addEventListener('keydown', (e) => {
     stopScan();
   }
 });
-
 startPresenceLoop();
 startInboxLoop();
 showScanButtonIfReady();
 updateStepIndicator();
+
