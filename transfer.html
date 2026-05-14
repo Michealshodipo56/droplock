@@ -247,6 +247,14 @@
       <!-- Full-screen Scanning Overlay -->
       <div id="scan-overlay" class="scan-overlay">
         <div class="scan-overlay-content">
+          <div class="radar-search-panel" aria-label="Search online devices">
+            <div class="radar-search-row">
+              <input type="search" id="radar-search-input" class="radar-search-input" placeholder="SEARCH DEVICE NAME" autocomplete="off">
+              <button id="radar-search-btn" class="radar-search-btn" type="button">SEARCH</button>
+            </div>
+            <div id="radar-search-results" class="radar-search-results is-hidden"></div>
+          </div>
+
           <!-- Onion rings SVG -->
           <svg id="scan-radar" class="scan-radar" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
             <!-- Concentric rings -->

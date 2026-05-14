@@ -1875,10 +1875,66 @@ const scanBtn = document.getElementById('scan-btn');
 const scanOverlay = document.getElementById('scan-overlay');
 const scanCancelBtn = document.getElementById('scan-cancel-btn');
 const radarUsersGroup = document.getElementById('radar-users');
+const radarSearchInput = document.getElementById('radar-search-input');
+const radarSearchBtn = document.getElementById('radar-search-btn');
+const radarSearchResults = document.getElementById('radar-search-results');
+const MAX_RADAR_USERS = 15;
+let discoverablePeers = [];
 
 function setScanStatus(text) {
   if (scanStatusTextEl) {
     scanStatusTextEl.innerText = text;
+  }
+}
+
+function renderRadarSearchResults(matches, emptyText = 'NO_MATCHING_DEVICES') {
+  if (!radarSearchResults) return;
+
+  radarSearchResults.innerHTML = '';
+
+  if (matches.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'radar-search-empty';
+    empty.innerText = emptyText;
+    radarSearchResults.appendChild(empty);
+    radarSearchResults.classList.remove('is-hidden');
+    return;
+  }
+
+  matches.forEach(device => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'radar-search-result';
+    item.innerText = device.deviceName;
+    item.addEventListener('click', () => {
+      applySelectedDevice(device);
+      stopScan();
+    });
+    radarSearchResults.appendChild(item);
+  });
+
+  radarSearchResults.classList.remove('is-hidden');
+}
+
+function searchRadarDevices() {
+  const query = radarSearchInput ? radarSearchInput.value.trim().toLowerCase() : '';
+
+  if (!query) {
+    renderRadarSearchResults(discoverablePeers.slice(0, 8), discoverablePeers.length ? 'TYPE_A_DEVICE_NAME' : 'NO_ONLINE_DEVICES_FOUND');
+    return;
+  }
+
+  const matches = discoverablePeers.filter(device => (
+    (device.deviceName || '').toLowerCase().includes(query)
+  ));
+  renderRadarSearchResults(matches);
+}
+
+function resetRadarSearch() {
+  if (radarSearchInput) radarSearchInput.value = '';
+  if (radarSearchResults) {
+    radarSearchResults.innerHTML = '';
+    radarSearchResults.classList.add('is-hidden');
   }
 }
 
@@ -1907,6 +1963,7 @@ async function startScan() {
   scanActive = true;
   scanOverlay.classList.add('active');
   setScanStatus('SCANNING_FOR_ONLINE_DEVICES...');
+  resetRadarSearch();
   
   // Clear previous users
   radarUsersGroup.innerHTML = '';
@@ -1915,6 +1972,7 @@ async function startScan() {
   try {
     const onlineUsers = await getDiscoverablePeers();
     if (!scanActive) return;
+    discoverablePeers = onlineUsers;
 
     if (onlineUsers.length === 0) {
       setScanStatus('NO_ONLINE_DEVICES_FOUND');
@@ -1922,6 +1980,7 @@ async function startScan() {
     }
 
     const shuffled = [...onlineUsers].sort(() => Math.random() - 0.5);
+    const radarUsers = shuffled.slice(0, MAX_RADAR_USERS);
     
     // Create a pool of available slots per ring to prevent overlap
     // Ring 1 (260): 16 slots, Ring 2 (210): 12 slots, Ring 3 (160): 8 slots, Ring 4 (110): 6 slots
@@ -1932,7 +1991,7 @@ async function startScan() {
       { radius: 110, count: 6, current: 0 }
     ];
 
-    shuffled.forEach((user, i) => {
+    radarUsers.forEach((user, i) => {
       // Pick a ring with available slots, or fallback to busiest if full
       let ringIndex = user.ring - 1;
       if (ringSlots[ringIndex].current >= ringSlots[ringIndex].count) {
@@ -1973,8 +2032,8 @@ async function startScan() {
       radarListWrap.classList.add('is-hidden');
     }
 
-    if (onlineUsers.length > 15) {
-      scanStatusTextEl.innerHTML += `<br><span style="font-size: 0.6rem; color: var(--text-dim);">DENSE_TRAFFIC_MODE_ACTIVE</span>`;
+    if (onlineUsers.length > MAX_RADAR_USERS && scanStatusTextEl) {
+      scanStatusTextEl.innerHTML += `<br><span style="font-size: 0.6rem; color: var(--text-dim);">DISPLAYING_${MAX_RADAR_USERS}_OF_${onlineUsers.length}_ON_RADAR</span>`;
     }
     animateUsers();
   } catch (err) {
@@ -2069,6 +2128,8 @@ function animateUsers() {
 function stopScan() {
   scanActive = false;
   scanOverlay.classList.remove('active');
+  discoverablePeers = [];
+  resetRadarSearch();
   const radarListWrap = document.getElementById('radar-list-fallback');
   if (radarListWrap) radarListWrap.classList.add('is-hidden');
   
@@ -2094,6 +2155,19 @@ if (scanCancelBtn) {
   scanCancelBtn.addEventListener('click', stopScan);
 }
 
+if (radarSearchBtn) {
+  radarSearchBtn.addEventListener('click', searchRadarDevices);
+}
+
+if (radarSearchInput) {
+  radarSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      searchRadarDevices();
+    }
+  });
+}
+
 // ESC key to close scan overlay
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && scanActive) {
@@ -2104,4 +2178,3 @@ startPresenceLoop();
 startInboxLoop();
 showScanButtonIfReady();
 updateStepIndicator();
-

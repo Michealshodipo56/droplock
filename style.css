@@ -2646,6 +2646,121 @@ body.light-mode .enc-action-btn:disabled {
   overflow: visible;
 }
 
+.radar-search-panel {
+  position: absolute;
+  left: 50%;
+  top: -92px;
+  transform: translateX(-50%);
+  width: min(92vw, 460px);
+  z-index: 30;
+}
+
+.radar-search-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.radar-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  background: rgba(10, 15, 20, 0.92);
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  outline: none;
+  padding: 0 14px;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.radar-search-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.16);
+}
+
+.radar-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.radar-search-btn {
+  height: 44px;
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--cyan);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 0 16px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.radar-search-btn:hover {
+  background: rgba(0, 229, 255, 0.22);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.16);
+  color: var(--text-main);
+}
+
+.radar-search-results {
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(10, 15, 20, 0.94);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+.radar-search-result,
+.radar-search-empty {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+}
+
+.radar-search-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 10px 12px;
+  text-align: left;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.radar-search-result + .radar-search-result {
+  margin-top: 8px;
+}
+
+.radar-search-result:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.radar-search-result::after {
+  content: "CONNECT";
+  color: var(--cyan);
+  font-size: 0.58rem;
+  opacity: 0.65;
+}
+
+.radar-search-empty {
+  color: var(--text-dim);
+  padding: 4px 2px;
+}
+
 /* Concentric radar rings */
 .radar-ring {
   stroke: var(--cyan);
@@ -2806,6 +2921,29 @@ body.light-mode .enc-action-btn:disabled {
   .scan-overlay-content {
     width: 92vmin;
     min-height: 92vmin;
+  }
+
+  .radar-search-panel {
+    top: -118px;
+    width: min(92vw, 360px);
+  }
+
+  .radar-search-row {
+    gap: 8px;
+  }
+
+  .radar-search-input,
+  .radar-search-btn {
+    height: 40px;
+    font-size: 0.62rem;
+  }
+
+  .radar-search-btn {
+    padding: 0 10px;
+  }
+
+  .radar-search-results {
+    max-height: 150px;
   }
 
   .scan-radar,
